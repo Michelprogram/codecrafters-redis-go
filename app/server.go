@@ -28,9 +28,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
-		log.Println(conn.LocalAddr().String())
-
+		
 		go func() {
 			err := response(conn)
 			if err != nil {
