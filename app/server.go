@@ -38,8 +38,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if bytes.HasPrefix(buffer, []byte("*1\\r\\n$4\\r\\nPING\\r\\n")) {
-		_, err = conn.Write([]byte("+PONG\\r\\n"))
+	if bytes.HasPrefix(buffer, []byte("*1\r\n$4\r\nPING\r\n")) {
+		_, err = conn.Write([]byte("+PONG\r\n"))
 		if err != nil {
 			fmt.Println("Error sending: ", err.Error())
 			os.Exit(1)
