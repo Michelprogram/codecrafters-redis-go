@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
+
 	// Uncomment this block to pass the first stage
 	"net"
 )
@@ -32,6 +34,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		log.Println(string(buffer))
 
 		commands := bytes.Split(buffer, []byte("\n"))
 
