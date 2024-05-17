@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
-
 	// Uncomment this block to pass the first stage
 	"net"
 )
@@ -28,7 +26,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		go func() {
 			err := response(conn)
 			if err != nil {
@@ -49,8 +47,7 @@ func response(conn net.Conn) error {
 
 		size, err := conn.Read(buffer)
 		if err != nil {
-			if err != io.EOF {
-				log.Printf("error reading from connection: %v", err)
+			if err == io.EOF {
 				break
 			}
 			return err
