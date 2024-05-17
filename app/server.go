@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
@@ -18,9 +21,31 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
-	_, err = l.Accept()
+
+	defer l.Close()
+
+	conn, err := l.Accept()
 	if err != nil {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
+
+	buffer := make([]byte, 1024)
+
+	_, err = conn.Read(buffer)
+	if err != nil {
+		fmt.Println("Error reading: ", err.Error())
+		os.Exit(1)
+	}
+
+	if bytes.HasPrefix(buffer, []byte("PING")) {
+		_, err = conn.Write([]byte("+PONG\\r\\n"))
+		if err != nil {
+			fmt.Println("Error sending: ", err.Error())
+			os.Exit(1)
+		}
+	}
+
+	log.Printf("read command:%s", buffer)
+
 }
