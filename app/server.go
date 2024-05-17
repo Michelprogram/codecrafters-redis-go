@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
+
 	// Uncomment this block to pass the first stage
 	"net"
 )
@@ -53,11 +55,22 @@ func response(conn net.Conn) error {
 			return err
 		}
 
-		command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
+		commands := bytes.Split(buffer[:size], []byte("\r\n"))
 
-		switch string(command) {
-		case "PING":
+		command := string(bytes.ToLower(commands[2]))
+
+		log.Println(command)
+
+		switch command {
+		case "ping":
 			_, err = conn.Write([]byte("+PONG\r\n"))
+
+		case "echo":
+
+			res := fmt.Sprintf("$%d\r\n%s\r\n", len(commands[4]), commands[4])
+
+			_, err = conn.Write([]byte(res))
+
 		}
 
 		if err != nil {
