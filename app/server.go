@@ -5,7 +5,6 @@ import (
 	"fmt"
 	// Uncomment this block to pass the first stage
 	"net"
-	"os"
 )
 
 func main() {
@@ -21,36 +20,39 @@ func main() {
 	defer l.Close()
 
 	for {
+
+		buffer := make([]byte, 1024)
+
 		conn, err := l.Accept()
 		if err != nil {
 			panic(err)
 		}
 
-		go func() {
-			err := readLoop(conn)
-			if err != nil {
-				panic(err)
-			}
-		}()
+		_, err = conn.Read(buffer)
+		if err != nil {
+			panic(err)
+		}
+
+		commands := bytes.Split(buffer, []byte("\n"))
+
+		for _, command := range commands {
+
+			go response(command, conn)
+		}
+
 	}
 
 }
 
-func readLoop(conn net.Conn) error {
-	buffer := make([]byte, 1024)
+func response(data []byte, conn net.Conn) error {
 
-	_, err := conn.Read(buffer)
-	if err != nil {
-		return err
-	}
+	var err error
 
-	if bytes.HasPrefix(buffer, []byte("*1\r\n$4\r\nPING\r\n")) {
+	switch string(data) {
+	case "PING":
 		_, err = conn.Write([]byte("+PONG\r\n"))
-		if err != nil {
-			fmt.Println("Error sending: ", err.Error())
-			os.Exit(1)
-		}
 	}
 
-	return nil
+	return err
+
 }
