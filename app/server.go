@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
-
 	// Uncomment this block to pass the first stage
 	"net"
 )
@@ -23,37 +21,40 @@ func main() {
 
 	for {
 
-		buffer := make([]byte, 1024)
-
 		conn, err := l.Accept()
 		if err != nil {
 			panic(err)
+
 		}
 
-		_, err = conn.Read(buffer)
-		if err != nil {
-			panic(err)
-		}
+		go response(conn)
 
-		commands := bytes.Split(buffer, []byte("\n"))
+		/*		for _, command := range commands {
 
-		for _, command := range commands {
-
-			go response(command, conn)
-		}
+				go response(command, conn)
+			}*/
 
 	}
 
 }
 
-func response(data []byte, conn net.Conn) error {
+func response(conn net.Conn) error {
 
-	log.Println(string(data))
+	defer conn.Close()
 
 	var err error
 
-	switch string(data) {
-	case "PING\r":
+	buffer := make([]byte, 1024)
+
+	size, err := conn.Read(buffer)
+	if err != nil {
+		panic(err)
+	}
+
+	command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
+
+	switch string(command) {
+	case "PING":
 		_, err = conn.Write([]byte("+PONG\r\n"))
 	}
 
