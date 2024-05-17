@@ -35,8 +35,6 @@ func main() {
 			panic(err)
 		}
 
-		log.Println(string(buffer))
-
 		commands := bytes.Split(buffer, []byte("\n"))
 
 		for _, command := range commands {
@@ -50,10 +48,12 @@ func main() {
 
 func response(data []byte, conn net.Conn) error {
 
+	log.Println(string(data))
+
 	var err error
 
 	switch string(data) {
-	case "PING":
+	case "PING\r":
 		_, err = conn.Write([]byte("+PONG\r\n"))
 	}
 
