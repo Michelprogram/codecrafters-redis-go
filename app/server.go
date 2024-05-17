@@ -26,10 +26,14 @@ func main() {
 		conn, err := l.Accept()
 		if err != nil {
 			panic(err)
-
 		}
 
-		go response(conn)
+		go func() {
+			err := response(conn)
+			if err != nil {
+				panic(err)
+			}
+		}()
 
 		/*		for _, command := range commands {
 
@@ -50,7 +54,7 @@ func response(conn net.Conn) error {
 
 	size, err := conn.Read(buffer)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
