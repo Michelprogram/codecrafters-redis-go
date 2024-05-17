@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
+
 	// Uncomment this block to pass the first stage
 	"net"
 )
@@ -52,6 +54,8 @@ func response(conn net.Conn) error {
 	}
 
 	command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
+
+	log.Println(string(command))
 
 	switch string(command) {
 	case "PING":
