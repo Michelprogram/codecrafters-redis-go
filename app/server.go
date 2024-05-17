@@ -37,12 +37,9 @@ func main() {
 			}
 		}()
 
-		/*		for _, command := range commands {
-
-				go response(command, conn)
-			}*/
-
 	}
+
+	log.Println("done")
 
 }
 
