@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 
 	// Uncomment this block to pass the first stage
@@ -39,30 +40,36 @@ func main() {
 
 	}
 
-	log.Println("done")
-
 }
 
 func response(conn net.Conn) error {
 
 	defer conn.Close()
 
-	var err error
+	for {
+		buffer := make([]byte, 1024)
 
-	buffer := make([]byte, 1024)
+		size, err := conn.Read(buffer)
+		if err != nil {
+			if err != io.EOF {
+				log.Printf("error reading from connection: %v", err)
+				break
+			}
+			return err
+		}
 
-	size, err := conn.Read(buffer)
-	if err != nil {
-		return err
+		command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
+
+		switch string(command) {
+		case "PING":
+			_, err = conn.Write([]byte("+PONG\r\n"))
+		}
+
+		if err != nil {
+			return err
+		}
 	}
 
-	command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
-
-	switch string(command) {
-	case "PING":
-		_, err = conn.Write([]byte("+PONG\r\n"))
-	}
-
-	return err
+	return nil
 
 }
