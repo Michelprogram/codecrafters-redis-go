@@ -28,6 +28,8 @@ func main() {
 			panic(err)
 		}
 
+		log.Println(conn.LocalAddr().String())
+
 		go func() {
 			err := response(conn)
 			if err != nil {
@@ -58,8 +60,6 @@ func response(conn net.Conn) error {
 	}
 
 	command := bytes.Split(buffer[:size], []byte("\r\n"))[2]
-
-	log.Println(string(command))
 
 	switch string(command) {
 	case "PING":
