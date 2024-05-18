@@ -123,3 +123,15 @@ func (_ ReplConf) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	return err
 }
+
+type Psync struct {
+}
+
+func (_ Psync) Send(conn net.Conn, _ [][]byte, server *Redis) error {
+
+	data := fmt.Sprintf("+FULLRESYNC %s 0\r\n", server.MasterReplicationId)
+
+	_, err := conn.Write([]byte(data))
+
+	return err
+}

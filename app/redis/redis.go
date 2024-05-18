@@ -37,6 +37,7 @@ func newRedis(port uint, role string) *Redis {
 			"get":      Get{},
 			"info":     Info{},
 			"replconf": ReplConf{},
+			"psync":    Psync{},
 		},
 	}
 }

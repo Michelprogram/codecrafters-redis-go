@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -84,6 +85,10 @@ func (m *Node) handshake() error {
 	if !bytes.Equal(response, OK) {
 		return errors.New("Can't replconf capa to main node at " + m.MasterAddress)
 	}
+
+	response, err = m.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n")
+
+	log.Println(string(response))
 
 	return nil
 }
