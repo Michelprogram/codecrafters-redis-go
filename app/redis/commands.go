@@ -24,6 +24,10 @@ func (_ Ping) Send(conn net.Conn, _ [][]byte, _ *Redis) error {
 	return err
 }
 
+func (_ Ping) IsWritable() bool {
+	return false
+}
+
 type Echo struct{}
 
 func (_ Echo) Send(conn net.Conn, args [][]byte, _ *Redis) error {
@@ -32,9 +36,15 @@ func (_ Echo) Send(conn net.Conn, args [][]byte, _ *Redis) error {
 	return err
 }
 
+func (_ Echo) IsWritable() bool {
+	return false
+}
+
 type Set struct{}
 
-func (_ Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
+func (s Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
+
+	var err error
 
 	key, content := string(args[0]), string(args[2])
 
@@ -58,9 +68,15 @@ func (_ Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
 		}
 	}
 
-	_, err := conn.Write(OK)
+	if server.IsMaster {
+		_, err = conn.Write(OK)
+	}
 
 	return err
+}
+
+func (s Set) IsWritable() bool {
+	return true
 }
 
 type Get struct{}
@@ -90,6 +106,10 @@ func (_ Get) Send(conn net.Conn, args [][]byte, server *Redis) error {
 	return err
 }
 
+func (_ Get) IsWritable() bool {
+	return false
+}
+
 type Info struct{}
 
 func (_ Info) Send(conn net.Conn, args [][]byte, server *Redis) error {
@@ -106,6 +126,10 @@ func (_ Info) Send(conn net.Conn, args [][]byte, server *Redis) error {
 	return err
 }
 
+func (_ Info) IsWritable() bool {
+	return false
+}
+
 type ReplConf struct {
 }
 
@@ -117,12 +141,16 @@ func (_ ReplConf) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	switch key {
 	case "listening-port":
-		server.Replications = append(server.Replications, conn)
+		server.Replications = append(server.Replications, string(args[2]))
 	}
 
 	_, err = conn.Write(OK)
 
 	return err
+}
+
+func (_ ReplConf) IsWritable() bool {
+	return false
 }
 
 type Psync struct {
@@ -153,4 +181,8 @@ func (_ Psync) Send(conn net.Conn, _ [][]byte, server *Redis) error {
 	}
 
 	return err
+}
+
+func (_ Psync) IsWritable() bool {
+	return false
 }

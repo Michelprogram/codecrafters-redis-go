@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 )
 
@@ -30,7 +29,10 @@ func (m *Node) ListenAndServe() error {
 		return err
 	}
 
+	defer l.Close()
+
 	m.Listener = l
+
 	m.handleRequests()
 
 	return nil
@@ -68,6 +70,10 @@ func (m *Node) handshake() error {
 
 	response, err := m.send("*1\r\n$4\r\nPING\r\n")
 
+	if err != nil {
+		return err
+	}
+
 	if !bytes.Equal(response, PONG) {
 		return errors.New("Can't connected to main node at " + m.MasterAddress)
 	}
@@ -76,11 +82,19 @@ func (m *Node) handshake() error {
 
 	response, err = m.send(data)
 
+	if err != nil {
+		return err
+	}
+
 	if !bytes.Equal(response, OK) {
 		return errors.New("Can't replconf to main node at " + m.MasterAddress)
 	}
 
 	response, err = m.send("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n")
+
+	if err != nil {
+		return err
+	}
 
 	if !bytes.Equal(response, OK) {
 		return errors.New("Can't replconf capa to main node at " + m.MasterAddress)
@@ -88,7 +102,5 @@ func (m *Node) handshake() error {
 
 	response, err = m.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n")
 
-	log.Println(string(response))
-
-	return nil
+	return err
 }

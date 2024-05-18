@@ -14,7 +14,7 @@ type Redis struct {
 	Address      string
 	Commands     map[string]ICommand
 	Database     map[string]Data
-	Replications []net.Conn
+	Replications []string
 	RDB          string
 	Information
 	net.Listener
@@ -30,7 +30,7 @@ func newRedis(port uint, role string) *Redis {
 		Listener:     nil,
 		Information:  newInformation(role),
 		Database:     make(map[string]Data),
-		Replications: make([]net.Conn, 0),
+		Replications: make([]string, 0),
 		RDB:          "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		Commands: map[string]ICommand{
 			"ping":     Ping{},
@@ -42,6 +42,26 @@ func newRedis(port uint, role string) *Redis {
 			"psync":    Psync{},
 		},
 	}
+}
+
+func (r *Redis) send(port string, data []byte) {
+	tcpServer, _ := net.ResolveTCPAddr(TCP, "localhost:"+port)
+
+	conn, _ := net.DialTCP(TCP, nil, tcpServer)
+
+	_, err := conn.Write(data)
+
+	if err != nil {
+		log.Println("Failed replication at " + port)
+	}
+}
+
+func (r *Redis) propagation(data []byte) {
+
+	for _, port := range r.Replications {
+		go r.send(port, data)
+	}
+
 }
 
 func (r *Redis) handleRequests() {
@@ -83,15 +103,22 @@ func (r *Redis) response(conn net.Conn) error {
 
 		log.Printf("Command received : %s\n", arg)
 
-		if val, ok := r.Commands[arg]; ok {
-			err = val.Send(conn, args[4:], r)
+		cmd, ok := r.Commands[arg]
+
+		if ok {
+			err = cmd.Send(conn, args[4:], r)
 			if err != nil {
 				return err
 			}
-
 		} else {
 			return errors.New("ICommand " + arg + " doesn't exist")
+
 		}
+
+		if r.IsMaster && cmd.IsWritable() {
+			r.propagation(buffer)
+		}
+
 	}
 
 	return nil

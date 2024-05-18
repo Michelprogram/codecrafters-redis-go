@@ -18,4 +18,5 @@ type IServer interface {
 
 type ICommand interface {
 	Send(conn net.Conn, args [][]byte, server *Redis) error
+	IsWritable() bool
 }
