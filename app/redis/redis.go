@@ -99,7 +99,12 @@ func (r *Redis) response(conn net.Conn) error {
 		log.Printf("Command received : %s\n", arg)
 
 		if val, ok := r.Commands[arg]; ok {
-			return val.Send(conn, args[4:], r.Database)
+			err = val.Send(conn, args[4:], r.Database)
+
+			if err != nil {
+				return err
+			}
+
 		} else {
 			return errors.New("command " + arg + " doesn't exist")
 		}
