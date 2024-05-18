@@ -1,6 +1,8 @@
 package redis
 
 import (
+	"bytes"
+	"errors"
 	"net"
 )
 
@@ -22,17 +24,17 @@ func (m *Node) ListenAndServe() error {
 		return err
 	}
 
-	/*	l, err := net.Listen(TCP, m.Address)
+	l, err := net.Listen(TCP, m.Address)
 
-		m.Listener = l
+	m.Listener = l
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
 
-		defer l.Close()
+	defer l.Close()
 
-		m.handleRequests()*/
+	m.handleRequests()
 
 	return nil
 }
@@ -55,14 +57,16 @@ func (m *Node) handshake() error {
 		return err
 	}
 
-	// buffer to get data
 	received := make([]byte, 1024)
-	_, err = conn.Read(received)
+	size, err := conn.Read(received)
 	if err != nil {
 		return err
 	}
 
-	println("Received message:", string(received))
+	if bytes.Equal(received[:size], PONG) {
+		return nil
+	}
 
-	return nil
+	return errors.New("Can't connected to main node at " + m.MasterAddress)
+
 }
