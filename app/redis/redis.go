@@ -71,7 +71,6 @@ func (r *Redis) handleRequests() {
 			err := r.response(conn)
 			if err != nil {
 				log.Printf("Can't send response : %s\n", err)
-				return
 			}
 		}()
 
