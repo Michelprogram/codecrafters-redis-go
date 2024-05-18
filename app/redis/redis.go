@@ -2,7 +2,6 @@ package redis
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -10,33 +9,26 @@ import (
 	"net"
 )
 
-var (
-	TCP = "tcp"
-)
-
-type Data struct {
-	Content string
-	context.Context
-}
-
 type Redis struct {
 	Port     uint
 	Address  string
-	Commands map[string]command
+	Commands map[string]ICommand
 	Database map[string]Data
 	Information
 	net.Listener
 }
 
-func NewServer(port uint, role string) *Redis {
+func newRedis(port uint, role string) *Redis {
+
+	address := fmt.Sprintf("0.0.0.0:%d", port)
 
 	return &Redis{
 		Port:        port,
-		Address:     fmt.Sprintf("0.0.0.0:%d", port),
+		Address:     address,
 		Listener:    nil,
-		Information: newInformation(role),
+		Information: newInformation(role, address),
 		Database:    make(map[string]Data),
-		Commands: map[string]command{
+		Commands: map[string]ICommand{
 			"ping": Ping{},
 			"echo": Echo{},
 			"set":  Set{},
@@ -44,22 +36,6 @@ func NewServer(port uint, role string) *Redis {
 			"info": Info{},
 		},
 	}
-}
-
-func (r *Redis) ListenAndServe() error {
-	l, err := net.Listen(TCP, r.Address)
-
-	r.Listener = l
-
-	if err != nil {
-		return err
-	}
-
-	defer l.Close()
-
-	r.handleRequests()
-
-	return nil
 }
 
 func (r *Redis) handleRequests() {
@@ -108,7 +84,7 @@ func (r *Redis) response(conn net.Conn) error {
 			}
 
 		} else {
-			return errors.New("command " + arg + " doesn't exist")
+			return errors.New("ICommand " + arg + " doesn't exist")
 		}
 	}
 

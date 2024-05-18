@@ -1,18 +1,25 @@
 package redis
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Information struct {
 	Role                    string
+	IsMaster                bool
+	MasterAddress           string
 	MasterReplicationId     string
 	MasterReplicationOffset int
 }
 
-func newInformation(role string) Information {
+func newInformation(role string, masterAddress string) Information {
 
-	if role == "master" {
+	if role == "" {
 		return Information{
-			Role:                    role,
+			Role:                    "master",
+			IsMaster:                true,
+			MasterAddress:           "",
 			MasterReplicationId:     "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
 			MasterReplicationOffset: 0,
 		}
@@ -20,6 +27,8 @@ func newInformation(role string) Information {
 
 	return Information{
 		Role:                    "slave",
+		IsMaster:                false,
+		MasterAddress:           strings.Replace(role, " ", ":", 1),
 		MasterReplicationId:     "",
 		MasterReplicationOffset: 0,
 	}

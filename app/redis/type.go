@@ -1,19 +1,21 @@
 package redis
 
-import "net"
+import (
+	"context"
+	"net"
+)
 
 type Response []byte
 
-var (
-	OK   Response = []byte("+OK\r\n")
-	PONG Response = []byte("+PONG\r\n")
-	NULL Response = []byte("$-1\r\n")
-)
+type Data struct {
+	Content string
+	context.Context
+}
 
-var (
-	SPLITTER = []byte("\r\n")
-)
+type IServer interface {
+	ListenAndServe() error
+}
 
-type command interface {
+type ICommand interface {
 	Send(conn net.Conn, args [][]byte, server *Redis) error
 }

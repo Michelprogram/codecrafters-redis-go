@@ -12,11 +12,11 @@ func main() {
 	var replicaof string
 
 	flag.UintVar(&port, "port", 6379, "Port where your server should start")
-	flag.StringVar(&replicaof, "replicaof", "master", "Address to the master node")
+	flag.StringVar(&replicaof, "replicaof", "", "Address to the master node")
 
 	flag.Parse()
 
-	server := redis.NewServer(port, replicaof)
+	server := redis.NewServerFactory(port, replicaof)
 
 	err := server.ListenAndServe()
 

@@ -26,5 +26,8 @@ send-info-replication:
 start-with-flag:
 	go run app/server.go --port $(port)
 
-start-as-slave:
-	go run app/server.go --port $(port1) --replicaof "localhost $(port2)"
+start-as-master:
+	go run app/server.go --port 2121
+
+start-as-node:
+	go run app/server.go --port 2122 --replicaof "localhost 2121"
