@@ -10,11 +10,12 @@ type Main struct {
 
 func newMain(port uint, role string) *Main {
 	return &Main{
-		newRedis(port, role),
+		Redis: newRedis(port, role),
 	}
 }
 
 func (m *Main) ListenAndServe() error {
+
 	l, err := net.Listen(TCP, m.Address)
 
 	m.Listener = l

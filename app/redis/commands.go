@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"strconv"
@@ -129,9 +130,27 @@ type Psync struct {
 
 func (_ Psync) Send(conn net.Conn, _ [][]byte, server *Redis) error {
 
-	data := fmt.Sprintf("+FULLRESYNC %s 0\r\n", server.MasterReplicationId)
+	data := fmt.Sprintf("+FULLRESYNC %s %d\r\n", server.MasterReplicationId, server.MasterReplicationOffset)
 
 	_, err := conn.Write([]byte(data))
+
+	if err != nil {
+		return err
+	}
+
+	rdb, err := hex.DecodeString(server.RDB)
+
+	if err != nil {
+		return err
+	}
+
+	data = fmt.Sprintf("$%d\r\n%s", len(rdb), rdb)
+
+	_, err = conn.Write([]byte(data))
+
+	if err != nil {
+		return err
+	}
 
 	return err
 }

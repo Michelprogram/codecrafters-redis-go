@@ -15,6 +15,7 @@ type Redis struct {
 	Commands     map[string]ICommand
 	Database     map[string]Data
 	Replications []net.Conn
+	RDB          string
 	Information
 	net.Listener
 }
@@ -30,6 +31,7 @@ func newRedis(port uint, role string) *Redis {
 		Information:  newInformation(role),
 		Database:     make(map[string]Data),
 		Replications: make([]net.Conn, 0),
+		RDB:          "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		Commands: map[string]ICommand{
 			"ping":     Ping{},
 			"echo":     Echo{},
