@@ -50,7 +50,7 @@ func (r *Redis) propagation(data []byte) {
 
 		log.Println(replication)
 
-		conn, err := net.Dial(TCP, "localhost:"+replication)
+		conn, err := net.Dial(TCP, "0.0.0.0:"+replication)
 
 		log.Println(err)
 
