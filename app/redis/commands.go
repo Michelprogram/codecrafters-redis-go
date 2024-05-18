@@ -140,7 +140,7 @@ func (_ ReplConf) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	key := strings.ToLower(string(args[0]))
 
-	log.Println(server.Address)
+	log.Println(conn.RemoteAddr())
 
 	switch key {
 	case "listening-port":

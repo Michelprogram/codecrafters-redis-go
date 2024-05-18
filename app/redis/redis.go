@@ -48,7 +48,7 @@ func (r *Redis) propagation(data []byte) {
 
 	for _, replication := range r.Replications {
 
-		conn, err := net.Dial(TCP, "0.0.0.0:6379")
+		conn, err := net.Dial(TCP, "0.0.0.0:"+replication)
 
 		if err != nil {
 			log.Printf("Couldn't connect to %s : %s \n", replication, err)
