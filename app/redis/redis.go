@@ -47,9 +47,13 @@ func newRedis(port uint, role string) *Redis {
 func (r *Redis) send(port string, data []byte) {
 	tcpServer, _ := net.ResolveTCPAddr(TCP, "localhost:"+port)
 
-	conn, _ := net.DialTCP(TCP, nil, tcpServer)
+	conn, err := net.DialTCP(TCP, nil, tcpServer)
 
-	_, err := conn.Write(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = conn.Write(data)
 
 	if err != nil {
 		log.Println("Failed replication at " + port)
