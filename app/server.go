@@ -2,21 +2,27 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
-
-	// Uncomment this block to pass the first stage
 	"net"
+	"strconv"
+	"time"
 )
 
-var data map[string]string
+var data map[string]Data
+
+type Data struct {
+	Content string
+	Delay   context.Context
+}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
-	data = make(map[string]string)
+	data = make(map[string]Data)
 
 	// Uncomment this block to pass the first stage
 	l, err := net.Listen("tcp", "0.0.0.0:6379")
@@ -66,8 +72,6 @@ func response(conn net.Conn) error {
 			return err
 		}
 
-		log.Println(buffer[:size])
-
 		commands := bytes.Split(buffer[:size], []byte("\r\n"))
 
 		command := string(bytes.ToLower(commands[2]))
@@ -81,12 +85,45 @@ func response(conn net.Conn) error {
 			_, err = conn.Write(createBulkString(commands[4]))
 
 		case "set":
-			data[string(commands[4])] = string(commands[6])
+
+			if len(commands) > 4 {
+
+				d, err := strconv.Atoi(string(commands[10]))
+
+				if err != nil {
+					return err
+				}
+
+				ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(d))
+
+				data[string(commands[4])] = Data{
+					Content: string(commands[6]),
+					Delay:   ctx,
+				}
+			} else {
+				data[string(commands[4])] = Data{
+					Content: string(commands[6]),
+				}
+			}
+
 			_, err = conn.Write([]byte("+OK\r\n"))
 
 		case "get":
 			if val, ok := data[string(commands[4])]; ok {
-				_, err = conn.Write(createBulkString([]byte(val)))
+
+				if val.Delay == nil {
+					_, err = conn.Write(createBulkString([]byte(val.Content)))
+				} else {
+
+					select {
+					case <-val.Delay.Done():
+						_, err = conn.Write([]byte("$-1\r\n"))
+					default:
+						_, err = conn.Write(createBulkString([]byte(val.Content)))
+					}
+
+				}
+
 			} else {
 				_, err = conn.Write([]byte("$-1\r\n"))
 			}
