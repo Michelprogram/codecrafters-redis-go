@@ -86,7 +86,7 @@ func response(conn net.Conn) error {
 
 		case "set":
 
-			if len(commands) > 4 {
+			if len(commands) > 8 {
 
 				d, err := strconv.Atoi(string(commands[10]))
 
