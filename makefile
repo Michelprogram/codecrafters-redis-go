@@ -1,6 +1,8 @@
 test:
 	git add . && git commit --allow-empty -m "run tests" && git push origin master
 
+### Introduction
+
 send-ping:
 	 echo -e "*1\r\n$4\r\nPING\r\n" | netcat localhost 6379
 

@@ -99,8 +99,7 @@ func (_ Info) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	switch key {
 	case "replication":
-		role := fmt.Sprintf("role:%s", server.Role)
-		_, err = conn.Write(createBulkString(role))
+		_, err = conn.Write(createBulkString(server.Information.String()))
 	}
 
 	return err

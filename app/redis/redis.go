@@ -21,25 +21,21 @@ type Data struct {
 
 type Redis struct {
 	Port     uint
-	Role     string
 	Address  string
 	Commands map[string]command
 	Database map[string]Data
+	Information
 	net.Listener
 }
 
 func NewServer(port uint, role string) *Redis {
 
-	if role != "master" {
-		role = "slave"
-	}
-
 	return &Redis{
-		Port:     port,
-		Address:  fmt.Sprintf("0.0.0.0:%d", port),
-		Listener: nil,
-		Role:     role,
-		Database: make(map[string]Data),
+		Port:        port,
+		Address:     fmt.Sprintf("0.0.0.0:%d", port),
+		Listener:    nil,
+		Information: newInformation(role),
+		Database:    make(map[string]Data),
 		Commands: map[string]command{
 			"ping": Ping{},
 			"echo": Echo{},
