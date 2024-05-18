@@ -71,7 +71,7 @@ func (m *Node) handshake() error {
 		return errors.New("Can't connected to main node at " + m.MasterAddress)
 	}
 
-	data := fmt.Sprintf("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n%d\r\n", m.MasterPort)
+	data := fmt.Sprintf("*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n%d\r\n", m.Port)
 
 	response, err = m.send(data)
 

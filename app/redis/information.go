@@ -29,7 +29,7 @@ func newInformation(role string) Information {
 	}
 
 	address := strings.Split(role, " ")
-	
+
 	port, _ := strconv.Atoi(address[1])
 
 	return Information{
