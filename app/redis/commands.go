@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createBulkString(data []byte) []byte {
+func createBulkString[K []byte | string](data K) []byte {
 	res := fmt.Sprintf("$%d\r\n%s\r\n", len(data), data)
 
 	return []byte(res)
@@ -17,7 +17,7 @@ func createBulkString(data []byte) []byte {
 
 type Ping struct{}
 
-func (_ Ping) Send(conn net.Conn, _ [][]byte, _ map[string]Data) error {
+func (_ Ping) Send(conn net.Conn, _ [][]byte, _ *Redis) error {
 	_, err := conn.Write(PONG)
 
 	return err
@@ -25,7 +25,7 @@ func (_ Ping) Send(conn net.Conn, _ [][]byte, _ map[string]Data) error {
 
 type Echo struct{}
 
-func (_ Echo) Send(conn net.Conn, args [][]byte, _ map[string]Data) error {
+func (_ Echo) Send(conn net.Conn, args [][]byte, _ *Redis) error {
 
 	_, err := conn.Write(createBulkString(args[0]))
 	return err
@@ -33,7 +33,7 @@ func (_ Echo) Send(conn net.Conn, args [][]byte, _ map[string]Data) error {
 
 type Set struct{}
 
-func (_ Set) Send(conn net.Conn, args [][]byte, database map[string]Data) error {
+func (_ Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	key, content := string(args[0]), string(args[2])
 
@@ -47,12 +47,12 @@ func (_ Set) Send(conn net.Conn, args [][]byte, database map[string]Data) error 
 
 		ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(delay))
 
-		database[key] = Data{
+		server.Database[key] = Data{
 			Content: content,
 			Context: ctx,
 		}
 	} else {
-		database[key] = Data{
+		server.Database[key] = Data{
 			Content: content,
 		}
 	}
@@ -64,22 +64,22 @@ func (_ Set) Send(conn net.Conn, args [][]byte, database map[string]Data) error 
 
 type Get struct{}
 
-func (_ Get) Send(conn net.Conn, args [][]byte, database map[string]Data) error {
+func (_ Get) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	key := string(args[0])
-	val, ok := database[key]
+	val, ok := server.Database[key]
 
 	var err error
 
 	if ok {
 		if val.Context == nil {
-			_, err = conn.Write(createBulkString([]byte(val.Content)))
+			_, err = conn.Write(createBulkString(val.Content))
 		} else {
 			select {
 			case <-val.Done():
 				_, err = conn.Write(NULL)
 			default:
-				_, err = conn.Write(createBulkString([]byte(val.Content)))
+				_, err = conn.Write(createBulkString(val.Content))
 			}
 		}
 	} else {
@@ -91,7 +91,7 @@ func (_ Get) Send(conn net.Conn, args [][]byte, database map[string]Data) error 
 
 type Info struct{}
 
-func (_ Info) Send(conn net.Conn, args [][]byte, _ map[string]Data) error {
+func (_ Info) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	var err error
 
@@ -99,7 +99,8 @@ func (_ Info) Send(conn net.Conn, args [][]byte, _ map[string]Data) error {
 
 	switch key {
 	case "replication":
-		_, err = conn.Write(createBulkString([]byte("role:master")))
+		role := fmt.Sprintf("role:%s", server.Role)
+		_, err = conn.Write(createBulkString(role))
 	}
 
 	return err

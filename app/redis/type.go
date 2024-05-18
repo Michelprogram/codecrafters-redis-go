@@ -15,5 +15,5 @@ var (
 )
 
 type command interface {
-	Send(conn net.Conn, args [][]byte, database map[string]Data) error
+	Send(conn net.Conn, args [][]byte, server *Redis) error
 }
