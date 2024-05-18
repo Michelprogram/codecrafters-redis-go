@@ -1,2 +1,20 @@
 test:
 	git add . && git commit --allow-empty -m "run tests" && git push origin master
+
+send-ping:
+	 echo -e "*1\r\n$4\r\nPING\r\n" | netcat localhost 6379
+
+send-echo:
+	echo -e "*2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n" | netcat localhost 6379
+
+send-get:
+	echo -e "*2\r\n$3\r\nGET\r\n$3\r\nhey\r\n" | netcat localhost 6379
+
+send-set:
+	echo -e "*3\r\n$3\r\nSET\r\n$3\r\nhey\r\n$2\r\noi\r\n" | netcat localhost 6379
+
+send-set-px:
+	echo -e "*5\r\n$3\r\nSET\r\n$3\r\nhey\r\n$2\r\noi\r\n$2\r\npx\r\n$3\r\n100\r\n" | netcat localhost 6379
+
+start-with-flag:
+	go run app/server.go --port $(port)
