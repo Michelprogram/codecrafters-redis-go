@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -138,6 +139,8 @@ func (_ ReplConf) Send(conn net.Conn, args [][]byte, server *Redis) error {
 	var err error
 
 	key := strings.ToLower(string(args[0]))
+
+	log.Println(server.Address)
 
 	switch key {
 	case "listening-port":
