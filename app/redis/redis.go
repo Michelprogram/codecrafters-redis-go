@@ -10,10 +10,11 @@ import (
 )
 
 type Redis struct {
-	Port     uint
-	Address  string
-	Commands map[string]ICommand
-	Database map[string]Data
+	Port         uint
+	Address      string
+	Commands     map[string]ICommand
+	Database     map[string]Data
+	Replications []net.Conn
 	Information
 	net.Listener
 }
@@ -23,17 +24,19 @@ func newRedis(port uint, role string) *Redis {
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 
 	return &Redis{
-		Port:        port,
-		Address:     address,
-		Listener:    nil,
-		Information: newInformation(role, address),
-		Database:    make(map[string]Data),
+		Port:         port,
+		Address:      address,
+		Listener:     nil,
+		Information:  newInformation(role),
+		Database:     make(map[string]Data),
+		Replications: make([]net.Conn, 0),
 		Commands: map[string]ICommand{
-			"ping": Ping{},
-			"echo": Echo{},
-			"set":  Set{},
-			"get":  Get{},
-			"info": Info{},
+			"ping":     Ping{},
+			"echo":     Echo{},
+			"set":      Set{},
+			"get":      Get{},
+			"info":     Info{},
+			"replconf": ReplConf{},
 		},
 	}
 }

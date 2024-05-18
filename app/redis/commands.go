@@ -104,3 +104,22 @@ func (_ Info) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	return err
 }
+
+type ReplConf struct {
+}
+
+func (_ ReplConf) Send(conn net.Conn, args [][]byte, server *Redis) error {
+
+	var err error
+
+	key := strings.ToLower(string(args[0]))
+
+	switch key {
+	case "listening-port":
+		server.Replications = append(server.Replications, conn)
+	}
+
+	_, err = conn.Write(OK)
+
+	return err
+}
