@@ -30,7 +30,7 @@ func newRedis(port uint, role string) *Redis {
 		Listener:     nil,
 		Information:  newInformation(role),
 		Database:     make(map[string]Data),
-		Replications: make([]string, 0),
+		Replications: make([]string, 0, 10),
 		RDB:          "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		Commands: map[string]ICommand{
 			"ping":     Ping{},
@@ -44,35 +44,23 @@ func newRedis(port uint, role string) *Redis {
 	}
 }
 
-func (r *Redis) send(port string, data []byte) {
-	tcpServer, err := net.ResolveTCPAddr(TCP, "localhost:"+port)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	conn, err := net.DialTCP(TCP, nil, tcpServer)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = conn.Write(data)
-
-	if err != nil {
-		log.Println("Failed replication at " + port)
-	}
-}
-
 func (r *Redis) propagation(data []byte) {
 
-	for _, port := range r.Replications {
-		r.send(port, data)
+	for _, replication := range r.Replications {
+
+		conn, err := net.Dial(TCP, "localhost:"+replication)
+
+		_, err = conn.Write(data)
+
+		if err != nil {
+			log.Printf("Error while propagating data to replication: %s\n", err)
+		}
 	}
 
 }
 
 func (r *Redis) handleRequests() {
+
 	for {
 
 		conn, err := r.Accept()

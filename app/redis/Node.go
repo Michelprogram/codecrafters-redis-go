@@ -9,29 +9,29 @@ import (
 
 type Node struct {
 	*Redis
-	*net.TCPConn
+	Master net.Conn
 }
 
 func newNode(port uint, role string) *Node {
 	return &Node{
-		Redis:   newRedis(port, role),
-		TCPConn: nil,
+		Redis:  newRedis(port, role),
+		Master: nil,
 	}
 }
 
 func (m *Node) ListenAndServe() error {
-	if err := m.handshake(); err != nil {
-		return err
-	}
-
 	l, err := net.Listen(TCP, m.Address)
+
+	m.Listener = l
+
 	if err != nil {
 		return err
 	}
-
 	defer l.Close()
 
-	m.Listener = l
+	if err = m.handshake(); err != nil {
+		return err
+	}
 
 	m.handleRequests()
 
@@ -40,13 +40,13 @@ func (m *Node) ListenAndServe() error {
 
 func (m *Node) send(data string) ([]byte, error) {
 
-	_, err := m.TCPConn.Write([]byte(data))
+	_, err := m.Master.Write([]byte(data))
 	if err != nil {
 		return nil, err
 	}
 
 	received := make([]byte, 1024)
-	size, err := m.TCPConn.Read(received)
+	size, err := m.Master.Read(received)
 	if err != nil {
 		return nil, err
 	}
@@ -56,17 +56,15 @@ func (m *Node) send(data string) ([]byte, error) {
 }
 
 func (m *Node) handshake() error {
-	tcpServer, err := net.ResolveTCPAddr(TCP, m.MasterAddress)
+
+	conn, err := net.Dial(TCP, m.MasterAddress)
 	if err != nil {
 		return err
 	}
 
-	conn, err := net.DialTCP(TCP, nil, tcpServer)
-	if err != nil {
-		return err
-	}
+	defer conn.Close()
 
-	m.TCPConn = conn
+	m.Master = conn
 
 	response, err := m.send("*1\r\n$4\r\nPING\r\n")
 
