@@ -45,7 +45,11 @@ func newRedis(port uint, role string) *Redis {
 }
 
 func (r *Redis) send(port string, data []byte) {
-	tcpServer, _ := net.ResolveTCPAddr(TCP, "localhost:"+port)
+	tcpServer, err := net.ResolveTCPAddr(TCP, "localhost:"+port)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	conn, err := net.DialTCP(TCP, nil, tcpServer)
 
