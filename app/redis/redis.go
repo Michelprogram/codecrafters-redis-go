@@ -52,7 +52,7 @@ func (r *Redis) send(port string, data []byte) {
 	}
 
 	conn, err := net.DialTCP(TCP, nil, tcpServer)
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func (r *Redis) send(port string, data []byte) {
 func (r *Redis) propagation(data []byte) {
 
 	for _, port := range r.Replications {
-		go r.send(port, data)
+		r.send(port, data)
 	}
 
 }
