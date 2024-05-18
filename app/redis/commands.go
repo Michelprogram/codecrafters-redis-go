@@ -44,7 +44,7 @@ func (s Set) Send(conn net.Conn, args [][]byte, database map[string]Data) error 
 			return err
 		}
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(delay))
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*time.Duration(delay))
 
 		database[key] = Data{
 			Content: content,
