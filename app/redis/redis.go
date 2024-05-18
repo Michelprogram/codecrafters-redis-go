@@ -39,6 +39,7 @@ func NewServer(port uint) *Redis {
 			"echo": Echo{},
 			"set":  Set{},
 			"get":  Get{},
+			"info": Info{},
 		},
 	}
 }

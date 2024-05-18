@@ -16,5 +16,9 @@ send-set:
 send-set-px:
 	echo -e "*5\r\n$3\r\nSET\r\n$3\r\nhey\r\n$2\r\noi\r\n$2\r\npx\r\n$3\r\n100\r\n" | netcat localhost 6379
 
+send-info-replication:
+	echo -e "*2\r\n$4\r\ninfo\r\n$11\r\nreplication\r\n" | netcat localhost 6379
+
+
 start-with-flag:
 	go run app/server.go --port $(port)
