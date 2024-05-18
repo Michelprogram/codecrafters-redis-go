@@ -48,8 +48,11 @@ func (r *Redis) propagation(data []byte) {
 
 	for _, replication := range r.Replications {
 
+		log.Println(replication)
+
 		conn, err := net.Dial(TCP, "localhost:"+replication)
-		defer conn.Close()
+
+		log.Println(err)
 
 		_, err = conn.Write(data)
 
