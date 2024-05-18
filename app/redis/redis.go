@@ -52,9 +52,7 @@ func (r *Redis) send(port string, data []byte) {
 	}
 
 	conn, err := net.DialTCP(TCP, nil, tcpServer)
-
-	defer conn.Close()
-
+	
 	if err != nil {
 		log.Fatal(err)
 	}
