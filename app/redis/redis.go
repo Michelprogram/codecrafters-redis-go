@@ -50,7 +50,9 @@ func (r *Redis) propagation(data []byte) {
 
 		data = bytes.Replace(data, []byte("\x00"), []byte(""), -1)
 
-		_, err := replication.Write(data)
+		n, err := replication.Write(data)
+
+		log.Fatal(n, replication.LocalAddr())
 
 		if err != nil {
 			log.Printf("Couldn't write to %s : %s \n", replication, err)
