@@ -48,6 +48,8 @@ func (r *Redis) propagation(data []byte) {
 
 	for _, replication := range r.Replications {
 
+		data = bytes.Replace(data, []byte("\x00"), []byte(""), -1)
+
 		_, err := replication.Write(data)
 
 		if err != nil {
