@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -28,6 +29,8 @@ func (m *Node) ListenAndServe() error {
 		return err
 	}
 	defer l.Close()
+
+	log.Println(l.Addr())
 
 	if err = m.handshake(); err != nil {
 		return err
@@ -62,7 +65,7 @@ func (m *Node) handshake() error {
 		return err
 	}
 
-	defer conn.Close()
+	//defer conn.Close()
 
 	m.Master = conn
 

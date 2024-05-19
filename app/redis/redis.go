@@ -14,7 +14,7 @@ type Redis struct {
 	Address      string
 	Commands     map[string]ICommand
 	Database     map[string]Data
-	Replications []string
+	Replications []net.Conn
 	RDB          string
 	Information
 	net.Listener
@@ -30,7 +30,7 @@ func newRedis(port uint, role string) *Redis {
 		Listener:     nil,
 		Information:  newInformation(role),
 		Database:     make(map[string]Data),
-		Replications: make([]string, 0, 10),
+		Replications: make([]net.Conn, 0, 10),
 		RDB:          "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		Commands: map[string]ICommand{
 			"ping":     Ping{},
@@ -48,14 +48,7 @@ func (r *Redis) propagation(data []byte) {
 
 	for _, replication := range r.Replications {
 
-		conn, err := net.Dial(TCP, "0.0.0.0:"+replication)
-
-		if err != nil {
-			log.Printf("Couldn't connect to %s : %s \n", replication, err)
-			continue
-		}
-
-		_, err = conn.Write(data)
+		_, err := replication.Write(data)
 
 		if err != nil {
 			log.Printf("Couldn't write to %s : %s \n", replication, err)
@@ -103,6 +96,8 @@ func (r *Redis) response(conn net.Conn) error {
 		arg := string(bytes.ToLower(args[2]))
 
 		log.Printf("Command received : %s\n", arg)
+
+		log.Printf("Role : %v\n", r.IsMaster)
 
 		cmd, ok := r.Commands[arg]
 
