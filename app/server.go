@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/codecrafters-io/redis-starter-go/app/redis"
+	"github.com/codecrafters-io/redis-starter-go/app/redis/nodes"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 
 	flag.Parse()
 
-	server := redis.NewServerFactory(port, replicaof)
+	server := nodes.NewNode(port, replicaof)
 
 	err := server.ListenAndServe()
 

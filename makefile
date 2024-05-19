@@ -27,7 +27,7 @@ start-with-flag:
 	go run app/server.go --port $(port)
 
 start-as-master:
-	go run app/server.go --port 2121
+	go run app/server.go --port $(port)
 
 start-as-node:
 	go run app/server.go --port 2122 --replicaof "localhost 2121"
