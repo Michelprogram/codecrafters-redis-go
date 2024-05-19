@@ -49,6 +49,10 @@ func (s Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	key, content := string(args[0]), string(args[2])
 
+	if !server.IsMaster {
+		log.Println(key, content, len(args))
+	}
+
 	if len(args) > 4 {
 
 		delay, err := strconv.Atoi(string(args[6]))

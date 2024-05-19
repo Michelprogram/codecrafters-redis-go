@@ -33,7 +33,7 @@ start-as-node:
 	go run app/server.go --port 2122 --replicaof "localhost 2121"
 
 send-set-to-master:
-	echo -e "*3\r\n$3\r\nSET\r\n$3\r\naey\r\n$2\r\noi\r\n" | netcat localhost 2121
+	echo -e "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\n123\r\n" | netcat localhost 2121
 
 send-get-to-replication:
 	echo -e "*2\r\n$3\r\nGET\r\n$3\r\n$(key)\r\n" | netcat localhost 2122
