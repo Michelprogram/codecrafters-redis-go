@@ -30,11 +30,16 @@ func (m *Node) ListenAndServe() error {
 	}
 	defer l.Close()
 
-	log.Println(l.Addr())
-
 	if err = m.handshake(); err != nil {
 		return err
 	}
+
+	go func() {
+		err := m.response(m.Master)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	m.handleRequests()
 
