@@ -14,6 +14,7 @@ type Redis struct {
 	Address      string
 	Commands     map[string]ICommand
 	Database     map[string]Data
+	History      []string
 	Replications []net.Conn
 	RDB          string
 	Information
@@ -31,6 +32,7 @@ func newRedis(port uint, role string) *Redis {
 		Information:  newInformation(role),
 		Database:     make(map[string]Data),
 		Replications: make([]net.Conn, 0, 10),
+		History:      make([]string, 0),
 		RDB:          "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		Commands: map[string]ICommand{
 			"ping":     Ping{},
@@ -102,6 +104,8 @@ func (r *Redis) response(conn net.Conn) error {
 		log.Printf("Role : %v\n", r.IsMaster)
 
 		cmd, ok := r.Commands[arg]
+
+		r.History = append(r.History, string(buffer[:size]))
 
 		if ok {
 			err = cmd.Send(conn, args[4:], r)

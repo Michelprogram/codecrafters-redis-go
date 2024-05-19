@@ -49,10 +49,6 @@ func (s Set) Send(conn net.Conn, args [][]byte, server *Redis) error {
 
 	key, content := string(args[0]), string(args[2])
 
-	if !server.IsMaster {
-		log.Println(key, content, len(args))
-	}
-
 	if len(args) > 4 {
 
 		delay, err := strconv.Atoi(string(args[6]))
@@ -91,7 +87,7 @@ func (_ Get) Send(conn net.Conn, args [][]byte, server *Redis) error {
 	key := string(args[0])
 	val, ok := server.Database[key]
 
-	log.Printf("%v\n", server.Database)
+	log.Printf("%v\n", server.History)
 
 	var err error
 
