@@ -36,7 +36,7 @@ type Echo struct{}
 
 func (_ Echo) Receive(conn net.Conn, args [][]byte, _ Node) error {
 
-	_, err := fmt.Fprint(conn, NewBulkString(args[0]).Bytes())
+	_, err := fmt.Fprint(conn, NewBulkString(args[0]).String())
 
 	return err
 }
