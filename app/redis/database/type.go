@@ -52,23 +52,21 @@ func (d *Database) Add(key, value string, ctx context.Context) {
 
 }
 
-func (d *Database) AddX(id string, key, value []byte) {
+func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) {
 
 	defer d.Unlock()
 
 	d.Lock()
 
-	stream, ok := d.Data[id]
-
-	data := stream.Content.(Stream)
+	stream, ok := d.Data[key]
 
 	if ok {
-
-		data.Push(key, value)
+		data := stream.Content.(Stream)
+		data.Push(Xkey, Xvalue)
 
 	} else {
-		d.Data[id] = Record{
-			NewStream([]byte(id), key, value),
+		d.Data[key] = Record{
+			NewStream([]byte(id), Xkey, Xvalue),
 			"stream",
 			nil,
 		}

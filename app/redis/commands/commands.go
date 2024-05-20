@@ -262,13 +262,17 @@ type Xadd struct {
 
 func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 
+	key := args[0]
+
 	id := args[2]
 
-	for i := 4; i < len(args); i += 2 {
-		server.GetDatabase().AddX(string(id), args[i], args[i+2])
+	for i := 4; i < len(args)-2; i += 2 {
+		server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
 	}
 
-	return nil
+	_, err := fmt.Fprintf(conn, NewBulkString(id).String())
+
+	return err
 }
 
 func (_ Xadd) IsWritable() bool {
