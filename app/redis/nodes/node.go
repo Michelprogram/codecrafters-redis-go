@@ -17,6 +17,7 @@ type Node struct {
 	RDB          string
 	IsPrimary    bool
 	Replications []net.Conn
+	Offset       int
 	Information
 	net.Listener
 	database.Database
@@ -88,10 +89,6 @@ func (r *Node) response(conn net.Conn) error {
 
 		arg := string(bytes.ToLower(args[2]))
 
-		log.Printf("Command received : %s\n", arg)
-
-		log.Printf("Role : %v\n", r.IsPrimary)
-
 		cmd, ok := r.Commands[arg]
 
 		if ok {
@@ -136,4 +133,8 @@ func (r *Node) GetRDB() string {
 
 func (r *Node) GetMasterInformation() string {
 	return fmt.Sprintf("+FULLRESYNC %s %d\r\n", r.MasterReplicationId, r.MasterReplicationOffset)
+}
+
+func (r *Node) GetOffset() int {
+	return r.Offset
 }

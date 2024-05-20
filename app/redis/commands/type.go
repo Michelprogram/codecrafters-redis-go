@@ -13,6 +13,7 @@ type Node interface {
 	GetInformation() string
 	GetRDB() string
 	GetMasterInformation() string
+	GetOffset() int
 	IsMaster() bool
 }
 

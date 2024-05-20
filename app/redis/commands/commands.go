@@ -158,7 +158,10 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 		_, err = fmt.Fprintf(conn, resp.Ok().String())
 
 	case "getack":
-		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF", "ACK", "0").String())
+
+		offset := strconv.Itoa(server.GetOffset())
+
+		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF", "ACK", offset).String())
 
 	default:
 		_, err = fmt.Fprintf(conn, resp.Ok().String())
@@ -212,7 +215,7 @@ func (_ RDB) Receive(conn net.Conn, args [][]byte, _ Node) error {
 
 	var resp BuilderRESP
 
-	_, err := fmt.Fprintf(conn, resp.EncodeAsArray("replconf").String())
+	_, err := fmt.Fprintf(conn, resp.EncodeAsArray("replconf", "getack", "*").String())
 
 	return err
 }

@@ -31,6 +31,7 @@ func NewSecondary(port uint, role string) *Secondary {
 			Database:    database.NewDatabase(),
 			Parser:      commands.NewParser(),
 			IsPrimary:   false,
+			Offset:      0,
 			RDB:         "524544495330303131fa0972656469732d76657205372e322e30fa0a72656469732d62697473c040fa056374696d65c26d08bc65fa08757365642d6d656dc2b0c41000fa08616f662d62617365c000fff06e3bfec0ff5aa2",
 		},
 	}
@@ -88,10 +89,11 @@ func (m *Secondary) responseFromMaster() error {
 			_ = cmd.Receive(m.Master, cmd.Parameters, m.Node)
 
 		} else if cmd != nil {
-			err = cmd.Receive(m.Master, cmd.Parameters, m.Node)
-			if err != nil {
-				return err
-			}
+
+			_ = cmd.Receive(m.Master, cmd.Parameters, m.Node)
+
+			m.Offset += size
+
 		} else {
 			return errors.New("ICommand " + cmd.Name + " doesn't exist")
 		}
