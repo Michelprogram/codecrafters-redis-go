@@ -221,3 +221,38 @@ func (_ RDB) Receive(conn net.Conn, args [][]byte, _ Node) error {
 func (_ RDB) IsWritable() bool {
 	return false
 }
+
+type Type struct {
+}
+
+func (_ Type) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	var resp BuilderRESP
+
+	key := string(args[0])
+
+	val, err := server.GetDatabase().Get(key)
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("none", SIMPLE_STRING).String())
+		return err
+	}
+
+	if val.Context == nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("string", SIMPLE_STRING).String())
+
+	} else {
+		select {
+		case <-val.Done():
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("none", SIMPLE_STRING).String())
+		default:
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("string", SIMPLE_STRING).String())
+		}
+	}
+
+	return err
+}
+
+func (_ Type) IsWritable() bool {
+	return false
+}

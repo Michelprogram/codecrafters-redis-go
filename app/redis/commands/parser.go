@@ -27,6 +27,7 @@ func NewParser() Parser {
 			"replconf": ReplConf{},
 			"psync":    Psync{},
 			"redis001": RDB{},
+			"type":     Type{},
 		},
 	}
 }
