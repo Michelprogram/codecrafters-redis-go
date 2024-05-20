@@ -150,6 +150,8 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	key := strings.ToLower(string(args[0]))
 
+	log.Println(key)
+
 	switch key {
 	case "listening-port":
 		server.AddReplication(conn)
