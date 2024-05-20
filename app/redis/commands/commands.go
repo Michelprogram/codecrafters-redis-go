@@ -19,12 +19,11 @@ func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 
 	var resp BuilderRESP
 
-	pong := resp.EncodeAsArray("PONG")
+	pong := resp.EncodeAsSimpleString("PONG", SIMPLE_STRING)
 
-	_, err = fmt.Fprint(conn, pong.String())
-	/*	if server.IsMaster() {
+	if server.IsMaster() {
 		_, err = fmt.Fprint(conn, pong.String())
-	}*/
+	}
 
 	return err
 }
