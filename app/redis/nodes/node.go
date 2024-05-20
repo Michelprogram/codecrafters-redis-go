@@ -102,7 +102,7 @@ func (r *Node) response(conn net.Conn) error {
 
 		}
 
-		if r.IsPrimary && cmd.IsWritable() {
+		if r.IsPrimary {
 			r.propagation(buffer)
 		}
 
