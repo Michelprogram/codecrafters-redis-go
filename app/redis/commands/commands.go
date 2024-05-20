@@ -211,8 +211,8 @@ type RDB struct {
 func (_ RDB) Receive(conn net.Conn, args [][]byte, _ Node) error {
 
 	var resp BuilderRESP
-	
-	_, err := fmt.Fprintf(conn, resp.Ok().String())
+
+	_, err := fmt.Fprintf(conn, resp.EncodeAsArray("OK").String())
 
 	return err
 }
