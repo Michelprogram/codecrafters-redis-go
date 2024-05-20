@@ -53,18 +53,13 @@ func (m *Secondary) ListenAndServe() error {
 	}
 	defer l.Close()
 
-	go func() {
-		err := m.responseFromMaster()
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	return m.responseFromMaster()
 
-	<-m.ACK
+	/*	<-m.ACK
 
-	m.handleRequests()
+		m.handleRequests()*/
 
-	return nil
+	/*	return nil*/
 }
 
 func (m *Secondary) responseFromMaster() error {
