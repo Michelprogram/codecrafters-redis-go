@@ -15,6 +15,7 @@ import (
 type Secondary struct {
 	*Node
 	Master net.Conn
+	ACK    chan bool
 }
 
 func NewSecondary(port uint, role string) *Secondary {
@@ -22,6 +23,7 @@ func NewSecondary(port uint, role string) *Secondary {
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 
 	return &Secondary{
+		ACK: make(chan bool),
 		Node: &Node{
 			Port:        port,
 			Address:     address,
@@ -55,6 +57,8 @@ func (m *Secondary) ListenAndServe() error {
 		}
 	}()
 
+	<-m.ACK
+	
 	m.handleRequests()
 
 	return nil
@@ -78,7 +82,9 @@ func (m *Secondary) responseFromMaster() error {
 
 		log.Println("Command from master", cmd.Name)
 
-		if cmd != nil {
+		if cmd.Name == "redis001" {
+			m.ACK <- true
+		} else if cmd != nil {
 			err = cmd.Receive(m.Master, cmd.Parameters, m.Node)
 			if err != nil {
 				return err

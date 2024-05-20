@@ -10,6 +10,7 @@ import (
 )
 
 type Information struct {
+	ID                      string
 	Role                    string
 	IsMaster                bool
 	MasterAddress           string
@@ -27,11 +28,12 @@ func newInformation(role string) Information {
 
 	if role == "" {
 		return Information{
+			ID:                      randomID(),
 			Role:                    "master",
 			IsMaster:                true,
 			MasterAddress:           "",
 			MasterPort:              0,
-			MasterReplicationId:     randomID(),
+			MasterReplicationId:     "",
 			MasterReplicationOffset: 0,
 		}
 	}
@@ -41,6 +43,7 @@ func newInformation(role string) Information {
 	port, _ := strconv.Atoi(address[1])
 
 	return Information{
+		ID:                      randomID(),
 		Role:                    "slave",
 		IsMaster:                false,
 		MasterAddress:           strings.Replace(role, " ", ":", 1),

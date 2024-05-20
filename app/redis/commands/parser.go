@@ -2,7 +2,6 @@ package commands
 
 import (
 	"bytes"
-	"log"
 )
 
 type CMD struct {
@@ -61,7 +60,7 @@ func (p *Parser) bulkstring() *CMD {
 
 	return &CMD{
 		ICommand:   p.Commands["redis001"],
-		Name:       "Not set",
+		Name:       "redis001",
 		Parameters: nil,
 	}
 }
@@ -71,8 +70,6 @@ func (p *Parser) ParseArgs(data []byte) *CMD {
 	p.Data = data
 
 	start := p.Data[0]
-
-	log.Printf("Command received : %s\n", string(p.Data))
 
 	switch start {
 	case '$':
