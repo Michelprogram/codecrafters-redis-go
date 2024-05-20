@@ -48,7 +48,20 @@ func (b *BuilderRESP) Start(resp RESP) *BuilderRESP {
 	}
 }
 
-func NewSimpleString(arg string, resp RESP) *BuilderRESP {
+func (b *BuilderRESP) EncodeAsArray(elements ...string) *BuilderRESP {
+
+	b.Reset()
+
+	b = b.Start(ARRAYS)
+
+	for _, element := range elements {
+		b.AddArgString(element)
+	}
+
+	return b
+}
+
+func (b *BuilderRESP) EncodeAsSimpleString(arg string, resp RESP) *BuilderRESP {
 
 	data := strings.Builder{}
 
@@ -138,12 +151,12 @@ func (b *BuilderRESP) Ok() *BuilderRESP {
 
 	b.Reset()
 
-	return NewSimpleString("OK", SIMPLE_STRING)
+	return b.EncodeAsSimpleString("OK", SIMPLE_STRING)
 }
 
 func (b *BuilderRESP) Null() *BuilderRESP {
 
 	b.Reset()
 
-	return NewSimpleString("-1", BULK_STRING)
+	return b.EncodeAsSimpleString("-1", BULK_STRING)
 }

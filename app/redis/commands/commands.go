@@ -13,13 +13,17 @@ import (
 
 type Ping struct{}
 
-func (_ Ping) Receive(conn net.Conn, _ [][]byte, _ Node) error {
+func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 
-	//pong := NewSimpleString("PONG", SIMPLE_STRING)
+	var err error
 
-	_, err := conn.Write([]byte("+PONG\r\n"))
+	var resp BuilderRESP
 
-	//_, err := fmt.Fprint(conn, ")
+	pong := resp.EncodeAsSimpleString("PONG", SIMPLE_STRING)
+
+	if server.IsMaster() {
+		_, err = fmt.Fprint(conn, pong.String())
+	}
 
 	return err
 }
@@ -142,17 +146,18 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	var err error
 
-	var builder BuilderRESP
+	var resp BuilderRESP
 
 	key := strings.ToLower(string(args[0]))
 
 	switch key {
 	case "listening-port":
-
 		server.AddReplication(conn)
+		_, err = fmt.Fprintf(conn, resp.Ok().String())
+		
+	case "getack":
+		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF ACK 0").String())
 	}
-
-	_, err = fmt.Fprintf(conn, builder.Ok().String())
 
 	return err
 }

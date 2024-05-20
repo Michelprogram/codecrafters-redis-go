@@ -28,3 +28,6 @@ send-set-px:
 
 send-info-replication:
 	redis-cli -p $(port) info replication
+
+send-ack-replication:
+	redis-cli -p $(port) replconf getack *

@@ -1,9 +1,12 @@
 package nodes
 
 import (
+	"bytes"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Information struct {
@@ -15,6 +18,11 @@ type Information struct {
 	MasterReplicationOffset int
 }
 
+func init() {
+	src := rand.NewSource(time.Now().UnixNano())
+	rand.New(src)
+}
+
 func newInformation(role string) Information {
 
 	if role == "" {
@@ -23,7 +31,7 @@ func newInformation(role string) Information {
 			IsMaster:                true,
 			MasterAddress:           "",
 			MasterPort:              0,
-			MasterReplicationId:     "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
+			MasterReplicationId:     randomID(),
 			MasterReplicationOffset: 0,
 		}
 	}
@@ -44,4 +52,20 @@ func newInformation(role string) Information {
 
 func (i Information) String() string {
 	return fmt.Sprintf("role:%smaster_replid:%smaster_repl_offset:%d", i.Role, i.MasterReplicationId, i.MasterReplicationOffset)
+}
+
+func randomID() string {
+
+	var buffer bytes.Buffer
+
+	chars := []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	for i := 0; i < 40; i++ {
+
+		buffer.WriteByte(chars[rand.Intn(len(chars))])
+
+	}
+
+	return buffer.String()
+
 }
