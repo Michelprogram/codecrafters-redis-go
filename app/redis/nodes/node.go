@@ -82,9 +82,7 @@ func (r *Node) response(conn net.Conn) error {
 			}
 			return err
 		}
-
-		log.Println(string(buffer[:size]))
-
+		
 		args := bytes.Split(buffer[:size], []byte("\r\n"))
 
 		arg := string(bytes.ToLower(args[2]))

@@ -99,14 +99,14 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 	}
 
 	if val.Context == nil {
-		_, err = fmt.Fprintf(conn, NewBulkString(val.Content).String())
+		_, err = fmt.Fprintf(conn, NewBulkString(val.String()).String())
 
 	} else {
 		select {
 		case <-val.Done():
 			_, err = fmt.Fprintf(conn, builder.Null().String())
 		default:
-			_, err = fmt.Fprintf(conn, NewBulkString(val.Content).String())
+			_, err = fmt.Fprintf(conn, NewBulkString(val.String()).String())
 		}
 	}
 
@@ -234,19 +234,19 @@ func (_ Type) Receive(conn net.Conn, args [][]byte, server Node) error {
 	val, err := server.GetDatabase().Get(key)
 
 	if err != nil {
-		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("none", SIMPLE_STRING).String())
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(val.Type, SIMPLE_STRING).String())
 		return err
 	}
 
 	if val.Context == nil {
-		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("string", SIMPLE_STRING).String())
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(val.Type, SIMPLE_STRING).String())
 
 	} else {
 		select {
 		case <-val.Done():
-			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("none", SIMPLE_STRING).String())
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(val.Type, SIMPLE_STRING).String())
 		default:
-			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString("string", SIMPLE_STRING).String())
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(val.Type, SIMPLE_STRING).String())
 		}
 	}
 
@@ -254,5 +254,23 @@ func (_ Type) Receive(conn net.Conn, args [][]byte, server Node) error {
 }
 
 func (_ Type) IsWritable() bool {
+	return false
+}
+
+type Xadd struct {
+}
+
+func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	id := args[2]
+
+	for i := 4; i < len(args); i += 2 {
+		server.GetDatabase().AddX(string(id), args[i], args[i+2])
+	}
+
+	return nil
+}
+
+func (_ Xadd) IsWritable() bool {
 	return false
 }
