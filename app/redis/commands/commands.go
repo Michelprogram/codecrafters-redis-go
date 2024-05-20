@@ -15,9 +15,11 @@ type Ping struct{}
 
 func (_ Ping) Receive(conn net.Conn, _ [][]byte, _ Node) error {
 
-	pong := NewSimpleString("PONG")
+	//pong := NewSimpleString("PONG", SIMPLE_STRING)
 
-	_, err := fmt.Fprint(conn, pong)
+	_, err := conn.Write([]byte("+PONG\r\n"))
+
+	//_, err := fmt.Fprint(conn, ")
 
 	return err
 }
@@ -49,6 +51,8 @@ func (s Set) Receive(conn net.Conn, args [][]byte, server Node) error {
 	var builder BuilderRESP
 
 	key, content := string(args[0]), string(args[2])
+
+	fmt.Println(len(args))
 
 	if len(args) > 4 {
 
@@ -93,14 +97,14 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 	}
 
 	if val.Context == nil {
-		_, err = fmt.Fprintf(conn, builder.Start(BULK_STRING).AddArgString(val.Content).String())
+		_, err = fmt.Fprintf(conn, NewBulkString(val.Content).String())
 
 	} else {
 		select {
 		case <-val.Done():
 			_, err = fmt.Fprintf(conn, builder.Null().String())
 		default:
-			_, err = fmt.Fprintf(conn, builder.Start(BULK_STRING).AddArgString(val.Content).String())
+			_, err = fmt.Fprintf(conn, NewBulkString(val.Content).String())
 		}
 	}
 
@@ -117,13 +121,11 @@ func (_ Info) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	var err error
 
-	var builder BuilderRESP
-
 	key := strings.ToLower(string(args[0]))
 
 	switch key {
 	case "replication":
-		_, err = fmt.Fprintf(conn, builder.Start(BULK_STRING).AddArgString(server.GetInformation()).String())
+		_, err = fmt.Fprintf(conn, NewBulkString(server.GetInformation()).String())
 	}
 
 	return err

@@ -30,7 +30,7 @@ func (b *BuilderRESP) updateSize() {
 func (b *BuilderRESP) Bytes() []byte {
 	var buffer bytes.Buffer
 
-	buffer.WriteString(buffer.String())
+	buffer.WriteString(b.String())
 
 	return buffer.Bytes()
 }
@@ -48,11 +48,11 @@ func (b *BuilderRESP) Start(resp RESP) *BuilderRESP {
 	}
 }
 
-func NewSimpleString(arg string) *BuilderRESP {
+func NewSimpleString(arg string, resp RESP) *BuilderRESP {
 
 	data := strings.Builder{}
 
-	data.Write(SIMPLE_STRING)
+	data.Write(resp)
 	data.WriteString(arg)
 	data.Write(CRLF)
 
@@ -62,7 +62,7 @@ func NewSimpleString(arg string) *BuilderRESP {
 	}
 }
 
-func NewBulkString(arg []byte) *BuilderRESP {
+func NewBulkString[V []byte | string](arg V) *BuilderRESP {
 
 	data := strings.Builder{}
 
@@ -71,7 +71,7 @@ func NewBulkString(arg []byte) *BuilderRESP {
 	data.Write(BULK_STRING)
 	data.Write(size)
 	data.Write(CRLF)
-	data.Write(arg)
+	data.Write([]byte(arg))
 	data.Write(CRLF)
 
 	return &BuilderRESP{
@@ -138,16 +138,12 @@ func (b *BuilderRESP) Ok() *BuilderRESP {
 
 	b.Reset()
 
-	return b.
-		Start(BULK_STRING).
-		AddArgString("+OK")
+	return NewSimpleString("OK", SIMPLE_STRING)
 }
 
 func (b *BuilderRESP) Null() *BuilderRESP {
 
 	b.Reset()
 
-	return b.
-		Start(BULK_STRING).
-		AddArgString("-1")
+	return NewSimpleString("-1", BULK_STRING)
 }
