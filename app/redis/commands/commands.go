@@ -159,6 +159,9 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	case "getack":
 		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF", "ACK", "0").String())
+
+	default:
+		_, err = fmt.Fprintf(conn, resp.Ok().String())
 	}
 
 	return err
