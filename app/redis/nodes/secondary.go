@@ -76,8 +76,8 @@ func (m *Secondary) responseFromMaster() error {
 
 		cmd := m.ParseArgs(buffer[:size])
 
-		log.Println("Command from master")
-		
+		log.Println("Command from master", cmd.Name)
+
 		if cmd != nil {
 			err = cmd.Receive(m.Master, cmd.Parameters, m.Node)
 			if err != nil {
