@@ -29,7 +29,7 @@ func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 }
 
 func (_ Ping) IsWritable() bool {
-	return false
+	return true
 }
 
 type Echo struct{}
