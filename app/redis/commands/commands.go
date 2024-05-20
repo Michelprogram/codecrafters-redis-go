@@ -154,9 +154,9 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 	case "listening-port":
 		server.AddReplication(conn)
 		_, err = fmt.Fprintf(conn, resp.Ok().String())
-		
+
 	case "getack":
-		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF ACK 0").String())
+		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF", "ACK", "0").String())
 	}
 
 	return err
