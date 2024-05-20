@@ -208,11 +208,13 @@ func (_ Psync) IsWritable() bool {
 type RDB struct {
 }
 
-func (_ RDB) Receive(_ net.Conn, args [][]byte, _ Node) error {
+func (_ RDB) Receive(conn net.Conn, args [][]byte, _ Node) error {
 
-	log.Printf("Receive RDB file : %v\n", args)
+	var resp BuilderRESP
+	
+	_, err := fmt.Fprintf(conn, resp.Ok().String())
 
-	return nil
+	return err
 }
 
 func (_ RDB) IsWritable() bool {

@@ -58,7 +58,7 @@ func (m *Secondary) ListenAndServe() error {
 	}()
 
 	<-m.ACK
-	
+
 	m.handleRequests()
 
 	return nil
@@ -84,6 +84,9 @@ func (m *Secondary) responseFromMaster() error {
 
 		if cmd.Name == "redis001" {
 			m.ACK <- true
+
+			_ = cmd.Receive(m.Master, cmd.Parameters, m.Node)
+
 		} else if cmd != nil {
 			err = cmd.Receive(m.Master, cmd.Parameters, m.Node)
 			if err != nil {
