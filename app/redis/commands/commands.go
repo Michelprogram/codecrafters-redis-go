@@ -215,7 +215,7 @@ func (_ RDB) Receive(conn net.Conn, args [][]byte, _ Node) error {
 
 	var resp BuilderRESP
 
-	_, err := fmt.Fprintf(conn, resp.EncodeAsArray("replconf", "ACK", "*").String())
+	_, err := fmt.Fprintf(conn, resp.EncodeAsArray("replconf", "ACK", "0").String())
 
 	return err
 }
