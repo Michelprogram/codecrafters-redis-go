@@ -93,6 +93,7 @@ func (r *Node) response(conn net.Conn) error {
 
 		if ok {
 			err = cmd.Receive(conn, args[4:], r)
+			r.Offset += size
 			if err != nil {
 				log.Println(err)
 			}
