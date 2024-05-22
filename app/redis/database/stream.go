@@ -64,7 +64,7 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 
 	var err error
 
-	var sequenceNumber int
+	var sequenceNumber int = 1
 
 	stringID := string(id)
 
