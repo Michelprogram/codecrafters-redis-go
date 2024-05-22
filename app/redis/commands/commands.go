@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"github.com/codecrafters-io/redis-starter-go/app/redis/database"
 	"log"
 	"net"
 	"strconv"
@@ -263,20 +264,24 @@ type Xadd struct {
 func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	var err error
+	var res *database.ID
 
 	key := args[0]
 
 	id := args[2]
 
 	for i := 4; i < len(args)-2; i += 2 {
-		err = server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
+		res, err = server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
 		if err != nil {
+			log.Println(err)
 			_, err = fmt.Fprintf(conn, err.Error())
 			return err
 		}
 	}
 
-	_, err = fmt.Fprintf(conn, NewBulkString(id).String())
+	sequence := fmt.Sprintf("%d-%d", res.MillisecondsTime, res.SequenceNumber)
+
+	_, err = fmt.Fprintf(conn, NewBulkString(sequence).String())
 
 	return err
 }

@@ -52,29 +52,32 @@ func (d *Database) Add(key, value string, ctx context.Context) {
 
 }
 
-func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) error {
+func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) (*ID, error) {
 
 	defer d.Unlock()
 
 	d.Lock()
 
+	var err error
+	var res *ID
+
 	stream, ok := d.Data[key]
 
 	if ok {
 		data := stream.Content.(*Stream)
-		err := data.Push([]byte(id), Xkey, Xvalue)
+		res, err = data.Push([]byte(id), Xkey, Xvalue)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	} else {
 
 		streamInit := NewStream()
 
-		err := streamInit.Push([]byte(id), Xkey, Xvalue)
+		res, err = streamInit.Push([]byte(id), Xkey, Xvalue)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		d.Data[key] = Record{
@@ -84,7 +87,7 @@ func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) error {
 		}
 	}
 
-	return nil
+	return res, nil
 
 }
 

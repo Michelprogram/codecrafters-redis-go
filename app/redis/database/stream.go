@@ -39,22 +39,24 @@ func NewStream() *Stream {
 	}
 }
 
-func (s *Stream) Push(id, key, value []byte) error {
+func (s *Stream) Push(id, key, value []byte) (*ID, error) {
 
 	ms, sn, err := s.CouldInsert(id)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s.Key = append(s.Key, key)
 	s.Value = append(s.Value, value)
 
-	s.ID = append(s.ID, NewId(id, ms, sn))
+	res := NewId(id, ms, sn)
+
+	s.ID = append(s.ID, res)
 
 	s.Size++
 
-	return nil
+	return &res, nil
 
 }
 
@@ -63,8 +65,6 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	var err error
 
 	var sequenceNumber int
-
-	lastElement := s.ID[s.Size]
 
 	stringID := string(id)
 
@@ -76,32 +76,32 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 		return 0, 0, err
 	}
 
-	if infoIds[1] == "*" {
+	if infoIds[1] != "*" {
 
-		if s.Size == 0 {
-			sequenceNumber = 0
-		} else {
-			sequenceNumber = lastElement.SequenceNumber + 1
-		}
-
-	} else {
 		sequenceNumber, err = strconv.Atoi(infoIds[1])
 
 		if err != nil {
 			return 0, 0, err
 		}
+
+	} else if s.Size > 0 {
+		sequenceNumber = s.ID[s.Size-1].SequenceNumber + 1
 	}
 
 	if stringID == "0-0" {
 		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
 	}
 
-	if millisecondsTime == lastElement.MillisecondsTime && sequenceNumber <= lastElement.SequenceNumber {
-		return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
-	}
+	if s.Size > 0 {
+		lastElement := s.ID[s.Size-1]
 
-	if millisecondsTime < lastElement.MillisecondsTime {
-		return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
+		if millisecondsTime == lastElement.MillisecondsTime && sequenceNumber <= lastElement.SequenceNumber {
+			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
+		}
+
+		if millisecondsTime < lastElement.MillisecondsTime {
+			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
+		}
 	}
 
 	return millisecondsTime, sequenceNumber, nil
