@@ -262,15 +262,21 @@ type Xadd struct {
 
 func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 
+	var err error
+
 	key := args[0]
 
 	id := args[2]
 
 	for i := 4; i < len(args)-2; i += 2 {
-		server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
+		err = server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
+		if err != nil {
+			_, err = fmt.Fprintf(conn, err.Error())
+			return err
+		}
 	}
 
-	_, err := fmt.Fprintf(conn, NewBulkString(id).String())
+	_, err = fmt.Fprintf(conn, NewBulkString(id).String())
 
 	return err
 }

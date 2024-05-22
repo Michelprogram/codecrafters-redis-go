@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"errors"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -52,7 +54,7 @@ func (d *Database) Add(key, value string, ctx context.Context) {
 
 }
 
-func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) {
+func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) error {
 
 	defer d.Unlock()
 
@@ -62,15 +64,39 @@ func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) {
 
 	if ok {
 		data := stream.Content.(Stream)
-		data.Push(Xkey, Xvalue)
+		err := data.Push([]byte(id), Xkey, Xvalue)
+		if err != nil {
+			return err
+		}
 
 	} else {
+
+		if id == "0-0" {
+			return errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
+		}
+
+		infoIds := strings.Split(id, "-")
+
+		ms, err := strconv.Atoi(infoIds[0])
+
+		if err != nil {
+			return err
+		}
+
+		sn, err := strconv.Atoi(infoIds[1])
+
+		if err != nil {
+			return err
+		}
+
 		d.Data[key] = Record{
-			NewStream([]byte(id), Xkey, Xvalue),
+			NewStream(NewId([]byte(id), ms, sn), Xkey, Xvalue),
 			"stream",
 			nil,
 		}
 	}
+
+	return nil
 
 }
 
