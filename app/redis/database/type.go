@@ -3,8 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -71,26 +69,16 @@ func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) error {
 
 	} else {
 
-		if id == "0-0" {
-			return errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
-		}
+		streamInit := NewStream()
 
-		infoIds := strings.Split(id, "-")
-
-		ms, err := strconv.Atoi(infoIds[0])
-
-		if err != nil {
-			return err
-		}
-
-		sn, err := strconv.Atoi(infoIds[1])
+		err := streamInit.Push([]byte(id), Xkey, Xvalue)
 
 		if err != nil {
 			return err
 		}
 
 		d.Data[key] = Record{
-			NewStream(NewId([]byte(id), ms, sn), Xkey, Xvalue),
+			streamInit,
 			"stream",
 			nil,
 		}

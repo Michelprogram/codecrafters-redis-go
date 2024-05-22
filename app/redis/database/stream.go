@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -30,25 +29,17 @@ type Stream struct {
 	Size  int
 }
 
-func NewStream(id ID, key, value []byte) *Stream {
+func NewStream() *Stream {
 
 	return &Stream{
-		ID: []ID{
-			id,
-		},
-		Key: [][]byte{
-			key,
-		},
-		Value: [][]byte{
-			value,
-		},
-		Size: 0,
+		ID:    make([]ID, 0),
+		Key:   make([][]byte, 0),
+		Value: make([][]byte, 0),
+		Size:  0,
 	}
 }
 
 func (s *Stream) Push(id, key, value []byte) error {
-
-	log.Printf("Try to push as id %s as key %s as value %s", string(id), string(key), string(value))
 
 	ms, sn, err := s.CouldInsert(id)
 
@@ -69,6 +60,12 @@ func (s *Stream) Push(id, key, value []byte) error {
 
 func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 
+	var err error
+
+	var sequenceNumber int
+
+	lastElement := s.ID[s.Size]
+
 	stringID := string(id)
 
 	infoIds := strings.Split(stringID, "-")
@@ -79,19 +76,23 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 		return 0, 0, err
 	}
 
-	sequenceNumber, err := strconv.Atoi(infoIds[1])
+	if infoIds[1] == "*" {
 
-	if err != nil {
-		return 0, 0, err
+		if s.Size == 0 {
+			sequenceNumber = 0
+		} else {
+			sequenceNumber = lastElement.SequenceNumber + 1
+		}
+
+	} else {
+		sequenceNumber, err = strconv.Atoi(infoIds[1])
+
+		if err != nil {
+			return 0, 0, err
+		}
 	}
 
-	log.Println("Size : ", s.Size)
-
-	lastElement := s.ID[s.Size]
-
-	log.Printf("Last element as id %s as ms %d as sn %d", string(lastElement.Id), lastElement.MillisecondsTime, lastElement.SequenceNumber)
-
-	if millisecondsTime == 0 && sequenceNumber == 0 {
+	if stringID == "0-0" {
 		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
 	}
 
