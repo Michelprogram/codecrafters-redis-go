@@ -30,9 +30,9 @@ type Stream struct {
 	Size  int
 }
 
-func NewStream(id ID, key, value []byte) Stream {
+func NewStream(id ID, key, value []byte) *Stream {
 
-	return Stream{
+	return &Stream{
 		ID: []ID{
 			id,
 		},
@@ -84,6 +84,8 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
+
+	log.Println("Size : ", s.Size)
 
 	lastElement := s.ID[s.Size]
 

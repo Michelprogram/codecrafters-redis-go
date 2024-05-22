@@ -22,7 +22,7 @@ func (r Record) String() string {
 		return r.Content.(string)
 
 	case "stream":
-		return r.Content.(Stream).String()
+		return r.Content.(*Stream).String()
 
 	}
 
@@ -63,7 +63,7 @@ func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) error {
 	stream, ok := d.Data[key]
 
 	if ok {
-		data := stream.Content.(Stream)
+		data := stream.Content.(*Stream)
 		err := data.Push([]byte(id), Xkey, Xvalue)
 		if err != nil {
 			return err
