@@ -38,10 +38,16 @@ send-xrange:
 	redis-cli -p $(port) XADD stream_key 0-3 baz foo
 	redis-cli -p $(port) XRANGE stream_key 0-2 0-3
 
-
 send-xrange-minus:
 	redis-cli -p $(port) XADD stream_key 0-1 foo bar
 	redis-cli -p $(port) XADD stream_key 0-2 bar baz
 	redis-cli -p $(port) XADD stream_key 0-3 baz foo
 	redis-cli -p $(port) XADD stream_key 0-4 baz foo
 	redis-cli -p $(port) XRANGE stream_key - 0-3
+
+send-xrange-plus:
+	redis-cli -p $(port) XADD stream_key 0-1 foo bar
+	redis-cli -p $(port) XADD stream_key 0-2 bar baz
+	redis-cli -p $(port) XADD stream_key 0-3 baz foo
+	redis-cli -p $(port) XADD stream_key 0-4 baz foo
+	redis-cli -p $(port) XRANGE stream_key 0-2 +

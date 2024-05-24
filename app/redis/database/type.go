@@ -110,6 +110,8 @@ func (d *Database) Range(key string, start, end []byte) (*Stream, error) {
 
 	if string(start) == "-" {
 		res, err = stream.RangeFromBeginning(end)
+	} else if string(end) == "+" {
+		res, err = stream.RangeFromEnding(start)
 	} else {
 		res, err = stream.Range(start, end)
 	}
