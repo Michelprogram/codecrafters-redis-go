@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ID struct {
@@ -71,6 +72,11 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	var sequenceNumber int
 
 	stringID := string(id)
+
+	if stringID == "*" {
+		buffer := []byte(strconv.FormatInt(time.Now().UnixMilli(), 10) + "-0")
+		return s.CouldInsert(buffer)
+	}
 
 	if stringID == "0-0" {
 		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
