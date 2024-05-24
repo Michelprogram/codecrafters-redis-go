@@ -86,7 +86,7 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	}
 
 	if stringID == "0-0" {
-		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0")
+		return 0, 0, errors.New("ERR The ID specified in XADD must be greater than 0-0")
 	}
 
 	infoIds := strings.Split(stringID, "-")
@@ -122,11 +122,11 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 		lastElement := s.ID[s.Size-1]
 
 		if millisecondsTime == lastElement.MillisecondsTime && sequenceNumber <= lastElement.SequenceNumber {
-			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item")
+			return 0, 0, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 
 		if millisecondsTime < lastElement.MillisecondsTime {
-			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item")
+			return 0, 0, errors.New("ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 	}
 
