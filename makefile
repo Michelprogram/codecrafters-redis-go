@@ -55,3 +55,8 @@ send-xrange-plus:
 send-xread:
 	redis-cli -p $(port) XADD stream_key 0-1 temperature 96
 	redis-cli -p $(port) XREAD streams stream_key 0-0
+
+send-xread-multiple-stream:
+	redis-cli -p $(port) XADD stream_key 0-1 temperature 95
+	redis-cli -p $(port) XADD other_stream_key 0-2 humidity 97
+	redis-cli -p $(port) XREAD streams stream_key other_stream_key 0-0 0-1

@@ -220,3 +220,45 @@ func (b *BuilderRESP) XRead(key []byte, stream database.Stream) *BuilderRESP {
 
 	return b
 }
+
+func (b *BuilderRESP) XReadMultiple(keys [][]byte, streams []*database.Stream) *BuilderRESP {
+
+	b.Reset()
+
+	b.WriteString(fmt.Sprintf("*%d", len(streams)))
+	b.Write(CRLF)
+
+	b.WriteString("*2")
+	b.Write(CRLF)
+
+	for i, stream := range streams {
+
+		b.Write(NewBulkString(keys[i]).Bytes())
+
+		b.WriteString("*1")
+		b.Write(CRLF)
+
+		for j, id := range stream.ID {
+
+			b.WriteString("*2")
+			b.Write(CRLF)
+
+			b.Write(NewBulkString(id.String()).Bytes())
+
+			b.WriteString(fmt.Sprintf("*%d", stream.Size+1))
+			b.Write(CRLF)
+
+			b.Write(NewBulkString(stream.Key[j]).Bytes())
+			b.Write(NewBulkString(stream.Value[j]).Bytes())
+
+		}
+
+		if i != len(streams)-1 {
+
+			b.WriteString("*2")
+			b.Write(CRLF)
+		}
+	}
+
+	return b
+}

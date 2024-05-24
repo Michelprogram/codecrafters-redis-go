@@ -326,24 +326,48 @@ type XRead struct {
 func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	var err error
+	var stream *database.Stream
 	var resp BuilderRESP
 
-	key := args[2]
+	if len(args) > 4 {
 
-	id := args[4]
+		streams := make([]*database.Stream, 0)
+		keys := make([][]byte, 0)
 
-	stream, err := server.GetDatabase().Read(string(key), id)
+		for i := 2; i < len(args)/2; i += 2 {
+			stream, err = server.GetDatabase().Read(string(args[i]), args[i+4])
 
-	if err != nil {
-		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
-		return err
+			if err != nil {
+				_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+				return err
+			}
+
+			keys = append(keys, args[i])
+
+			streams = append(streams, stream)
+		}
+
+		resp.XReadMultiple(keys, streams)
+
+	} else {
+		key := args[2]
+
+		id := args[4]
+
+		stream, err = server.GetDatabase().Read(string(key), id)
+
+		if err != nil {
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+			return err
+		}
+
+		resp.XRead(key, *stream)
+
 	}
 
-	res := resp.XRead(key, *stream).String()
+	log.Println(resp.String())
 
-	log.Println(res)
-
-	_, err = fmt.Fprintf(conn, res)
+	_, err = fmt.Fprintf(conn, resp.String())
 
 	return err
 }
