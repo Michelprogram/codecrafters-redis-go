@@ -29,6 +29,7 @@ func NewParser() Parser {
 			"redis001": RDB{},
 			"type":     Type{},
 			"xadd":     Xadd{},
+			"xrange":   Xrange{},
 		},
 	}
 }

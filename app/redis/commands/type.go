@@ -26,5 +26,6 @@ var (
 	BULK_STRING   RESP = []byte("$")
 	SIMPLE_STRING RESP = []byte("+")
 	ARRAYS        RESP = []byte("*")
+	ERROR         RESP = []byte("-")
 	CRLF          RESP = []byte("\r\n")
 )

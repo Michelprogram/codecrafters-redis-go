@@ -2,6 +2,8 @@ package commands
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/codecrafters-io/redis-starter-go/app/redis/database"
 	"strconv"
 	"strings"
 )
@@ -159,4 +161,29 @@ func (b *BuilderRESP) Null() *BuilderRESP {
 	b.Reset()
 
 	return b.EncodeAsSimpleString("-1", BULK_STRING)
+}
+
+func (b *BuilderRESP) XRange(stream database.Stream) *BuilderRESP {
+
+	b.Reset()
+
+	b.WriteString(fmt.Sprintf("*%d", stream.Size))
+	b.Write(CRLF)
+
+	for i, id := range stream.ID {
+
+		b.WriteString("*2")
+		b.Write(CRLF)
+
+		b.Write(NewBulkString(id.String()).Bytes())
+
+		b.WriteString(fmt.Sprintf("*%d", stream.Size))
+		b.Write(CRLF)
+
+		b.Write(NewBulkString(stream.Key[i]).Bytes())
+		b.Write(NewBulkString(stream.Value[i]).Bytes())
+
+	}
+
+	return b
 }

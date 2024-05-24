@@ -31,3 +31,9 @@ send-info-replication:
 
 send-ack-replication:
 	"redis-cli -p $(port) replconf getack *"
+
+send-xrange:
+	redis-cli -p $(port) XADD stream_key 0-1 foo bar
+	redis-cli -p $(port) XADD stream_key 0-2 bar baz
+	redis-cli -p $(port) XADD stream_key 0-3 baz foo
+	redis-cli -p $(port) XRANGE stream_key 0-2 0-3

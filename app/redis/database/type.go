@@ -91,6 +91,29 @@ func (d *Database) AddX(key, id string, Xkey, Xvalue []byte) (*ID, error) {
 
 }
 
+func (d *Database) Range(key string, start, end []byte) (*Stream, error) {
+
+	defer d.Unlock()
+
+	d.Lock()
+
+	data, ok := d.Data[key]
+
+	if !ok {
+		return nil, errors.New(key + " doesnt exist")
+	}
+
+	stream := data.Content.(*Stream)
+
+	res, err := stream.Range(start, end)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (d *Database) Get(key string) (Record, error) {
 
 	defer d.Unlock()

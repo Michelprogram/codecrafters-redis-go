@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -20,6 +21,12 @@ func NewId(id []byte, millisecondsTime, sequenceNumber int) ID {
 		millisecondsTime,
 		sequenceNumber,
 	}
+
+}
+
+func (i ID) String() string {
+
+	return fmt.Sprintf("%d-%d", i.MillisecondsTime, i.SequenceNumber)
 
 }
 
@@ -79,7 +86,7 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	}
 
 	if stringID == "0-0" {
-		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
+		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0")
 	}
 
 	infoIds := strings.Split(stringID, "-")
@@ -115,11 +122,11 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 		lastElement := s.ID[s.Size-1]
 
 		if millisecondsTime == lastElement.MillisecondsTime && sequenceNumber <= lastElement.SequenceNumber {
-			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
+			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 
 		if millisecondsTime < lastElement.MillisecondsTime {
-			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item\r\n")
+			return 0, 0, errors.New("-ERR The ID specified in XADD is equal or smaller than the target stream top item")
 		}
 	}
 
@@ -130,5 +137,54 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 func (s Stream) String() string {
 
 	return ""
+
+}
+
+func (s Stream) Range(start, end []byte) (*Stream, error) {
+
+	startInfo := strings.Split(string(start), "-")
+
+	endInfo := strings.Split(string(end), "-")
+
+	startMS, err := strconv.Atoi(startInfo[0])
+
+	if err != nil {
+		return nil, err
+	}
+
+	startSN, err := strconv.Atoi(startInfo[1])
+
+	if err != nil {
+		return nil, err
+	}
+
+	endMS, err := strconv.Atoi(endInfo[0])
+
+	if err != nil {
+		return nil, err
+	}
+
+	endSN, err := strconv.Atoi(endInfo[1])
+
+	if err != nil {
+		return nil, err
+	}
+
+	stream := NewStream()
+
+	for i := 0; i < s.Size; i++ {
+
+		element := s.ID[i]
+
+		if element.MillisecondsTime >= startMS && element.MillisecondsTime <= endMS && element.SequenceNumber >= startSN && element.SequenceNumber <= endSN {
+			stream.ID = append(stream.ID, element)
+			stream.Key = append(stream.Key, s.Key[i])
+			stream.Value = append(stream.Value, s.Value[i])
+			stream.Size++
+		}
+
+	}
+
+	return stream, nil
 
 }

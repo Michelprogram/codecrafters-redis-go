@@ -265,6 +265,7 @@ func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	var err error
 	var res *database.ID
+	var resp BuilderRESP
 
 	key := args[0]
 
@@ -274,7 +275,7 @@ func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 		res, err = server.GetDatabase().AddX(string(key), string(id), args[i], args[i+2])
 		if err != nil {
 			log.Println(err)
-			_, err = fmt.Fprintf(conn, err.Error())
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
 			return err
 		}
 	}
@@ -287,5 +288,36 @@ func (_ Xadd) Receive(conn net.Conn, args [][]byte, server Node) error {
 }
 
 func (_ Xadd) IsWritable() bool {
+	return false
+}
+
+type Xrange struct {
+}
+
+func (_ Xrange) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	var err error
+	var resp BuilderRESP
+
+	key := args[0]
+
+	stream, err := server.GetDatabase().Range(string(key), args[2], args[4])
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+
+		return err
+	}
+
+	res := resp.XRange(*stream).String()
+
+	log.Println(res)
+
+	_, err = fmt.Fprintf(conn, res)
+
+	return err
+}
+
+func (_ Xrange) IsWritable() bool {
 	return false
 }
