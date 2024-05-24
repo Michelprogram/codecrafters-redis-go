@@ -329,7 +329,7 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 	var stream *database.Stream
 	var resp BuilderRESP
 
-	if len(args) > 4 {
+	if len(args) > 6 {
 
 		streams := make([]*database.Stream, 0)
 		keys := make([][]byte, 0)
