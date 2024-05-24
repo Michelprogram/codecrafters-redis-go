@@ -27,6 +27,7 @@ type Stream struct {
 	Key   [][]byte
 	Value [][]byte
 	Size  int
+	link  map[int]int
 }
 
 func NewStream() *Stream {
@@ -36,6 +37,7 @@ func NewStream() *Stream {
 		Key:   make([][]byte, 0),
 		Value: make([][]byte, 0),
 		Size:  0,
+		link:  map[int]int{},
 	}
 }
 
@@ -54,6 +56,8 @@ func (s *Stream) Push(id, key, value []byte) (*ID, error) {
 
 	s.ID = append(s.ID, res)
 
+	s.link[ms]++
+
 	s.Size++
 
 	return &res, nil
@@ -64,9 +68,13 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 
 	var err error
 
-	var sequenceNumber int = 1
+	var sequenceNumber int
 
 	stringID := string(id)
+
+	if stringID == "0-0" {
+		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
+	}
 
 	infoIds := strings.Split(stringID, "-")
 
@@ -84,12 +92,17 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 			return 0, 0, err
 		}
 
-	} else if s.Size > 0 {
-		sequenceNumber = s.ID[s.Size-1].SequenceNumber + 1
-	}
+	} else if data, ok := s.link[millisecondsTime]; ok {
+		sequenceNumber = data
+	} else {
+		if millisecondsTime == 0 {
+			s.link[millisecondsTime] = 1
+		} else {
+			s.link[millisecondsTime] = sequenceNumber
+		}
 
-	if stringID == "0-0" {
-		return 0, 0, errors.New("-ERR The ID specified in XADD must be greater than 0-0\r\n")
+		sequenceNumber = s.link[millisecondsTime]
+
 	}
 
 	if s.Size > 0 {
