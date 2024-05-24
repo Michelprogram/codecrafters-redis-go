@@ -188,3 +188,38 @@ func (s Stream) Range(start, end []byte) (*Stream, error) {
 	return stream, nil
 
 }
+
+func (s Stream) RangeFromBeginning(end []byte) (*Stream, error) {
+
+	endInfo := strings.Split(string(end), "-")
+
+	endMS, err := strconv.Atoi(endInfo[0])
+
+	if err != nil {
+		return nil, err
+	}
+
+	endSN, err := strconv.Atoi(endInfo[1])
+
+	if err != nil {
+		return nil, err
+	}
+
+	stream := NewStream()
+
+	element := s.ID[stream.Size]
+
+	for element.MillisecondsTime >= endMS && element.SequenceNumber >= endSN {
+
+		stream.ID = append(stream.ID, element)
+		stream.Key = append(stream.Key, s.Key[stream.Size])
+		stream.Value = append(stream.Value, s.Value[stream.Size])
+		stream.Size++
+
+		element = s.ID[stream.Size]
+
+	}
+
+	return stream, nil
+
+}

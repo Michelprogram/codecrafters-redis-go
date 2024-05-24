@@ -95,6 +95,9 @@ func (d *Database) Range(key string, start, end []byte) (*Stream, error) {
 
 	defer d.Unlock()
 
+	var res *Stream
+	var err error
+
 	d.Lock()
 
 	data, ok := d.Data[key]
@@ -105,7 +108,11 @@ func (d *Database) Range(key string, start, end []byte) (*Stream, error) {
 
 	stream := data.Content.(*Stream)
 
-	res, err := stream.Range(start, end)
+	if string(start) == "-" {
+		res, err = stream.RangeFromBeginning(end)
+	} else {
+		res, err = stream.Range(start, end)
+	}
 
 	if err != nil {
 		return nil, err
