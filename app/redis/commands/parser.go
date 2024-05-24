@@ -30,6 +30,7 @@ func NewParser() Parser {
 			"type":     Type{},
 			"xadd":     Xadd{},
 			"xrange":   Xrange{},
+			"xread":    XRead{},
 		},
 	}
 }

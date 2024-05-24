@@ -140,3 +140,21 @@ func (d *Database) Get(key string) (Record, error) {
 	}, errors.New("Key " + key + "doesn't exist")
 
 }
+
+func (d *Database) Read(key string, id []byte) (*Stream, error) {
+
+	defer d.Unlock()
+
+	d.Lock()
+
+	val, ok := d.Data[key]
+
+	if !ok {
+		return nil, errors.New("Key " + key + " doesn't exist")
+	}
+
+	stream := val.Content.(*Stream)
+
+	return stream.Read(id), nil
+
+}

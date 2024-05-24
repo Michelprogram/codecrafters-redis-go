@@ -311,6 +311,36 @@ func (_ Xrange) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	res := resp.XRange(*stream).String()
 
+	_, err = fmt.Fprintf(conn, res)
+
+	return err
+}
+
+func (_ Xrange) IsWritable() bool {
+	return false
+}
+
+type XRead struct {
+}
+
+func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	var err error
+	var resp BuilderRESP
+
+	key := args[2]
+
+	id := args[4]
+
+	stream, err := server.GetDatabase().Read(string(key), id)
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+		return err
+	}
+
+	res := resp.XRead(key, *stream).String()
+
 	log.Println(res)
 
 	_, err = fmt.Fprintf(conn, res)
@@ -318,6 +348,6 @@ func (_ Xrange) Receive(conn net.Conn, args [][]byte, server Node) error {
 	return err
 }
 
-func (_ Xrange) IsWritable() bool {
+func (_ XRead) IsWritable() bool {
 	return false
 }

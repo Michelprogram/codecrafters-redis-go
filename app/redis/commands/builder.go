@@ -187,3 +187,36 @@ func (b *BuilderRESP) XRange(stream database.Stream) *BuilderRESP {
 
 	return b
 }
+
+func (b *BuilderRESP) XRead(key []byte, stream database.Stream) *BuilderRESP {
+
+	b.Reset()
+
+	b.WriteString(fmt.Sprintf("*%d", stream.Size))
+	b.Write(CRLF)
+
+	b.WriteString("*2")
+	b.Write(CRLF)
+
+	b.Write(NewBulkString(key).Bytes())
+
+	b.WriteString("*1")
+	b.Write(CRLF)
+
+	for i, id := range stream.ID {
+
+		b.WriteString("*2")
+		b.Write(CRLF)
+
+		b.Write(NewBulkString(id.String()).Bytes())
+
+		b.WriteString(fmt.Sprintf("*%d", stream.Size+1))
+		b.Write(CRLF)
+
+		b.Write(NewBulkString(stream.Key[i]).Bytes())
+		b.Write(NewBulkString(stream.Value[i]).Bytes())
+
+	}
+
+	return b
+}

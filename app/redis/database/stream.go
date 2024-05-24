@@ -263,3 +263,25 @@ func (s Stream) RangeFromEnding(start []byte) (*Stream, error) {
 	return stream, nil
 
 }
+
+func (s Stream) Read(looking []byte) *Stream {
+
+	lookingStr := string(looking)
+
+	lookingIndex := 0
+
+	for i, id := range s.ID {
+		if id.String() == lookingStr {
+			lookingIndex = i
+			break
+		}
+	}
+
+	return &Stream{
+		ID:    s.ID[lookingIndex:],
+		Key:   s.Key[lookingIndex:],
+		Value: s.Value[lookingIndex:],
+		Size:  1,
+	}
+
+}
