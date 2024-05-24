@@ -177,7 +177,7 @@ func (b *BuilderRESP) XRange(stream database.Stream) *BuilderRESP {
 
 		b.Write(NewBulkString(id.String()).Bytes())
 
-		b.WriteString(fmt.Sprintf("*%d", stream.Size))
+		b.WriteString(fmt.Sprintf("*%d", stream.Size-1))
 		b.Write(CRLF)
 
 		b.Write(NewBulkString(stream.Key[i]).Bytes())

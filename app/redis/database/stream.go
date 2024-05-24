@@ -209,7 +209,7 @@ func (s Stream) RangeFromBeginning(end []byte) (*Stream, error) {
 
 	element := s.ID[stream.Size]
 
-	for element.MillisecondsTime >= endMS && element.SequenceNumber >= endSN {
+	for element.MillisecondsTime >= endMS && element.SequenceNumber <= endSN {
 
 		stream.ID = append(stream.ID, element)
 		stream.Key = append(stream.Key, s.Key[stream.Size])
