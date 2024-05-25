@@ -329,7 +329,40 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 	var stream *database.Stream
 	var resp BuilderRESP
 
-	if len(args) > 6 {
+	if string(args[0]) == "block" {
+
+		timeout, err := strconv.Atoi(string(args[2]))
+
+		key := args[6]
+
+		if err != nil {
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+			return err
+		}
+
+		data, err := server.GetDatabase().Get(string(key))
+
+		if err != nil {
+			_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+			return err
+		}
+
+		subscriber := make(chan *database.Stream)
+
+		stream = data.Content.(*database.Stream)
+
+		stream.AddSubscribe(subscriber)
+
+		ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Millisecond)
+
+		select {
+		case <-ctx.Done():
+			resp = *resp.Null()
+		case stream = <-subscriber:
+			resp = *resp.XRead(key, *stream)
+		}
+
+	} else if len(args) > 6 {
 
 		streams := make([]*database.Stream, 0)
 		keys := make([][]byte, 0)
@@ -364,6 +397,8 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 		resp.XRead(key, *stream)
 
 	}
+
+	log.Println(conn)
 
 	log.Println(resp.String())
 

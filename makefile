@@ -60,3 +60,10 @@ send-xread-multiple-stream:
 	redis-cli -p $(port) XADD stream_key 0-1 temperature 95
 	redis-cli -p $(port) XADD other_stream_key 0-2 humidity 97
 	redis-cli -p $(port) XREAD streams stream_key other_stream_key 0-0 0-1
+
+send-xread-block:
+	redis-cli -p $(port) XADD some_key 1526985054069-0 temperature 36
+	redis-cli -p $(port) XREAD block 2000 streams some_key 1526985054069-0
+
+send-xadd-block:
+	redis-cli -p $(port) XADD some_key 1526985054079-0 temperature 37

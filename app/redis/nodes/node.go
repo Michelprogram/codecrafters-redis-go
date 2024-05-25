@@ -82,7 +82,7 @@ func (r *Node) response(conn net.Conn) error {
 			}
 			return err
 		}
-		
+
 		args := bytes.Split(buffer[:size], []byte("\r\n"))
 
 		arg := string(bytes.ToLower(args[2]))
@@ -97,8 +97,9 @@ func (r *Node) response(conn net.Conn) error {
 			}
 		} else {
 			return errors.New("ICommand " + arg + " doesn't exist")
-
 		}
+
+		log.Println("Command sended" + arg)
 
 		if r.IsPrimary {
 			r.propagation(buffer)

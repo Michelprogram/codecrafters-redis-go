@@ -31,11 +31,12 @@ func (i ID) String() string {
 }
 
 type Stream struct {
-	ID    []ID
-	Key   [][]byte
-	Value [][]byte
-	Size  int
-	link  map[int]int
+	ID         []ID
+	Key        [][]byte
+	Value      [][]byte
+	Size       int
+	Subscriber []chan (*Stream)
+	link       map[int]int
 }
 
 func NewStream() *Stream {
@@ -47,6 +48,26 @@ func NewStream() *Stream {
 		Size:  0,
 		link:  map[int]int{},
 	}
+}
+
+func (s Stream) String() string {
+	return ""
+}
+
+func (s *Stream) AddSubscribe(channel chan *Stream) {
+	s.Subscriber = append(s.Subscriber, channel)
+}
+
+func (s *Stream) SendToSubscriber(dataToSend *Stream) {
+
+	for _, chans := range s.Subscriber {
+		chans <- dataToSend
+	}
+
+}
+
+func (s *Stream) Unsubscribe() {
+
 }
 
 func (s *Stream) Push(id, key, value []byte) (*ID, error) {
@@ -67,6 +88,13 @@ func (s *Stream) Push(id, key, value []byte) (*ID, error) {
 	s.link[ms]++
 
 	s.Size++
+
+	s.SendToSubscriber(&Stream{
+		ID:    []ID{s.ID[s.Size-1]},
+		Key:   [][]byte{s.Key[s.Size-1]},
+		Value: [][]byte{s.Value[s.Size-1]},
+		Size:  1,
+	})
 
 	return &res, nil
 
@@ -131,12 +159,6 @@ func (s *Stream) CouldInsert(id []byte) (int, int, error) {
 	}
 
 	return millisecondsTime, sequenceNumber, nil
-
-}
-
-func (s Stream) String() string {
-
-	return ""
 
 }
 
