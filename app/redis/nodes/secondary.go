@@ -141,9 +141,21 @@ func (m *Secondary) handshake() error {
 
 	response, err = utils.Send(m.Master, builder.Psync())
 
-	//Wait redis 1001
-	received := make([]byte, 1024)
-	_, err = conn.Read(received)
+	for {
+		buffer := make([]byte, 1024)
+
+		size, err := m.Master.Read(buffer)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return err
+		}
+
+		log.Printf("Received1 : %s\n", string(buffer[:size]))
+
+		panic("oui")
+	}
 
 	return err
 
