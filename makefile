@@ -72,3 +72,6 @@ send-xadd-block:
 
 send-get-config:
 	redis-cli -p $(port) config get $(key)
+
+run-with-rdb:
+	go run app/server.go --port 2121 --dir "." --dbfilename "test.rdb"
