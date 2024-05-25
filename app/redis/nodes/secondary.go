@@ -77,9 +77,11 @@ func (m *Secondary) responseFromMaster() error {
 			return err
 		}
 
+		log.Printf("Received : %s\n", string(buffer[:size]))
+
 		cmd := m.ParseArgs(buffer[:size])
 
-		log.Println("Command from master", cmd.Name)
+		//log.Println("Command from master", cmd.Name)
 
 		if cmd.Name == "redis001" {
 
