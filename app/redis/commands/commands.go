@@ -505,18 +505,15 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		return err
 	}
 
-	if string(args[0]) == "*" {
+	start := bytes.IndexByte(file, 251)
+	end := bytes.IndexByte(file[start:], 255) + start
 
-		start := bytes.IndexByte(file, 251)
-		end := bytes.IndexByte(file[start:], 255) + start
+	key := file[start+1 : end]
 
-		key := file[start+1 : end]
+	size := int(key[3]) + 4
 
-		size := int(key[3]) + 4
-
-		resp.EncodeAsArray(string(key[4:size]))
-	}
-
+	resp.EncodeAsArray(string(key[4:size]))
+	
 	_, err = fmt.Fprintf(conn, resp.String())
 
 	return err
