@@ -488,7 +488,7 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		key := file[start+1 : end]
 
 		size := int(key[3]) + 4
-		
+
 		resp.EncodeAsArray(string(key[4:size]))
 	} else {
 		//key := args[0]
@@ -501,7 +501,6 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		size := int(line[3]) + 4
 
 		resp.EncodeAsArray(string(line[size:]))
-
 	}
 
 	_, err = fmt.Fprintf(conn, resp.String())
