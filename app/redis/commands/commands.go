@@ -20,7 +20,7 @@ func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 
 	var resp BuilderRESP
 
-	pong := resp.EncodeAsSimpleString("PONG", SIMPLE_STRING)
+	pong := resp.EncodeAsArray("PONG")
 
 	/*	if server.IsMaster() {
 		}*/
