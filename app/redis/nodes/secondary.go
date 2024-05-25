@@ -83,11 +83,7 @@ func (m *Secondary) responseFromMaster() error {
 
 		//log.Println("Command from master", cmd.Name)
 
-		if cmd.Name == "redis001" {
-
-			_ = cmd.Receive(m.Master, cmd.Parameters, m.Node)
-
-		} else if cmd != nil {
+		if cmd != nil {
 
 			_ = cmd.Receive(m.Master, cmd.Parameters, m.Node)
 
@@ -145,12 +141,9 @@ func (m *Secondary) handshake() error {
 
 	response, err = utils.Send(m.Master, builder.Psync())
 
+	//Wait redis 1001
 	received := make([]byte, 1024)
-	size, err := conn.Read(received)
-
-	log.Println(string(received[:size]))
-
-	//panic(err)
+	_, err = conn.Read(received)
 
 	return err
 
