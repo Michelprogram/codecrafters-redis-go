@@ -25,6 +25,7 @@ func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 	if server.IsMaster() {
 		_, err = fmt.Fprint(conn, pong.String())
 	} else {
+		_, err = fmt.Fprint(conn, "")
 		log.Println("Secondary node doesn't send back pong")
 	}
 
