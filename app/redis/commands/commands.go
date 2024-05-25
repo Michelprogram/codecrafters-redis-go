@@ -479,6 +479,8 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		return err
 	}
 
+	fmt.Println(string(file))
+
 	fmt.Println("MAGIC", string(file[:5]))
 	fmt.Println("VERSION", string(file[5:9]))
 
