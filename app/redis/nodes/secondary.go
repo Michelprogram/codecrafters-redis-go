@@ -37,11 +37,6 @@ func NewSecondary(port uint, role string) *Secondary {
 
 func (m *Secondary) ListenAndServe() error {
 
-	if err := m.handshake(); err != nil {
-
-		return err
-	}
-
 	l, err := net.Listen("tcp", m.Address)
 
 	m.Listener = l
@@ -50,6 +45,11 @@ func (m *Secondary) ListenAndServe() error {
 		return err
 	}
 	defer l.Close()
+
+	if err := m.handshake(); err != nil {
+
+		return err
+	}
 
 	go func() {
 		err := m.responseFromMaster()
