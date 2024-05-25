@@ -483,7 +483,11 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 	start := bytes.IndexByte(file, 251)
 	end := bytes.IndexByte(file[start:], 255) + start
 
-	fmt.Println(string(file[start:end]))
+	key := file[start+1 : end]
+
+	str := key[4 : 4+key[3]]
+
+	fmt.Println("KEY : ", str)
 
 	fmt.Println("MAGIC", string(file[:5]))
 	fmt.Println("VERSION", string(file[5:9]))
