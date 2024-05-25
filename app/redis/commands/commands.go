@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -479,7 +480,10 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		return err
 	}
 
-	fmt.Println(string(file))
+	start := bytes.IndexByte(file, 251)
+	end := bytes.IndexByte(file[start:], 255)
+
+	fmt.Println(string(file[start:end]))
 
 	fmt.Println("MAGIC", string(file[:5]))
 	fmt.Println("VERSION", string(file[5:9]))
