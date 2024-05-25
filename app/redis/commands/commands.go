@@ -98,6 +98,29 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	key := string(args[0])
 
+	if val, _ := server.GetConfiguration("dir"); val != "" {
+
+		dbfilename, _ := server.GetConfiguration("dbfilename")
+
+		path := fmt.Sprintf("%s/%s", val, dbfilename)
+
+		file, err := os.ReadFile(path)
+
+		start := bytes.IndexByte(file, 251)
+		end := bytes.IndexByte(file[start:], 255) + start
+
+		line := file[start+1 : end]
+
+		size := int(line[3]) + 4
+
+		builder.EncodeAsArray(string(line[size:]))
+
+		_, err = fmt.Fprintf(conn, builder.String())
+
+		return err
+
+	}
+
 	val, err := server.GetDatabase().Get(key)
 
 	if err != nil {
@@ -490,17 +513,6 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 		size := int(key[3]) + 4
 
 		resp.EncodeAsArray(string(key[4:size]))
-	} else {
-		//key := args[0]
-
-		start := bytes.IndexByte(file, 251)
-		end := bytes.IndexByte(file[start:], 255) + start
-
-		line := file[start+1 : end]
-
-		size := int(line[3]) + 4
-
-		resp.EncodeAsArray(string(line[size:]))
 	}
 
 	_, err = fmt.Fprintf(conn, resp.String())
