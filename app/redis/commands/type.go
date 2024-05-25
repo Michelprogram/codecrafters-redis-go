@@ -22,16 +22,6 @@ type ICommand interface {
 	IsWritable() bool
 }
 
-type CommandError struct {
-	Err error
-	net.Conn
-	BuilderRESP
-}
-
-func (c CommandError) Error() string {
-	return c.EncodeAsSimpleString(c.Err.Error(), ERROR).String()
-}
-
 var (
 	BULK_STRING   RESP = []byte("$")
 	SIMPLE_STRING RESP = []byte("+")

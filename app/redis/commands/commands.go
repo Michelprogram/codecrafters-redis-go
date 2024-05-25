@@ -328,6 +328,9 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 	var err error
 	var stream *database.Stream
 	var resp BuilderRESP
+	var ctx context.Context
+
+	//TODO Refacto
 
 	if string(args[0]) == "block" {
 
@@ -353,7 +356,11 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		stream.AddSubscribe(subscriber)
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Millisecond)
+		if timeout == 0 {
+			ctx = context.Background()
+		} else {
+			ctx, _ = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Millisecond)
+		}
 
 		select {
 		case <-ctx.Done():
