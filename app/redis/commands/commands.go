@@ -94,7 +94,7 @@ type Get struct{}
 
 func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
-	var builder *BuilderRESP
+	var builder BuilderRESP
 
 	key := string(args[0])
 
@@ -115,9 +115,9 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		_, _ = fmt.Fprintf(os.Stdout, string(line[size:]))
 
-		builder = NewBulkString(string(line[size+1:]))
+		b := NewBulkString(string(line[size+1:]))
 
-		_, err = fmt.Fprintf(conn, builder.String())
+		_, err = fmt.Fprintf(conn, b.String())
 
 		return err
 
