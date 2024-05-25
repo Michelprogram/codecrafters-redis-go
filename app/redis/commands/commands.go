@@ -487,7 +487,7 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	str := key[4 : 4+key[3]]
 
-	fmt.Println("KEY : ", str)
+	fmt.Println("KEY : ", string(str))
 
 	fmt.Println("MAGIC", string(file[:5]))
 	fmt.Println("VERSION", string(file[5:9]))
