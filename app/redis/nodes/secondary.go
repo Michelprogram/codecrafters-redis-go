@@ -37,6 +37,11 @@ func NewSecondary(port uint, role string) *Secondary {
 
 func (m *Secondary) ListenAndServe() error {
 
+	if err := m.handshake(); err != nil {
+
+		return err
+	}
+
 	l, err := net.Listen("tcp", m.Address)
 
 	m.Listener = l
@@ -45,11 +50,6 @@ func (m *Secondary) ListenAndServe() error {
 		return err
 	}
 	defer l.Close()
-
-	if err := m.handshake(); err != nil {
-
-		return err
-	}
 
 	go func() {
 		err := m.responseFromMaster()
@@ -154,12 +154,10 @@ func (m *Secondary) handshake() error {
 			return err
 		}
 
-		log.Printf("Received redis101 : %s\n", string(buffer[:size]))
+		log.Printf("Received redis101 : %s  %d\n", string(buffer[:size]), size)
 
 		break
 	}
-
-	m.Offset = 37
 
 	return err
 
