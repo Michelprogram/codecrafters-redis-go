@@ -165,6 +165,8 @@ func (_ ReplConf) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		offset := strconv.Itoa(server.GetOffset())
 
+		log.Println("Offset " + offset)
+
 		_, err = fmt.Fprintf(conn, resp.EncodeAsArray("REPLCONF", "ACK", offset).String())
 
 	default:
