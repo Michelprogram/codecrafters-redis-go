@@ -480,7 +480,7 @@ type Keys struct {
 
 func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 
-	var resp *BuilderRESP
+	var resp BuilderRESP
 
 	dir, err := server.GetConfiguration("dir")
 
@@ -512,9 +512,9 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	size := int(key[3]) + 4
 
-	resp = resp.EncodeAsArray(string(key[4:size]))
+	b := resp.EncodeAsArray(string(key[4:size]))
 
-	_, err = fmt.Fprintf(conn, resp.String())
+	_, err = fmt.Fprintf(conn, b.String())
 
 	return err
 }
