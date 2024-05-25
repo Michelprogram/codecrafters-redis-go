@@ -22,10 +22,10 @@ func (_ Ping) Receive(conn net.Conn, _ [][]byte, server Node) error {
 
 	pong := resp.EncodeAsSimpleString("PONG", SIMPLE_STRING)
 
-	if server.IsMaster() {
-		_, err = fmt.Fprint(conn, pong.String())
-	}
+	/*	if server.IsMaster() {
+		}*/
 
+	_, err = fmt.Fprint(conn, pong.String())
 	return err
 }
 
