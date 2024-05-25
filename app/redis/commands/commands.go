@@ -481,7 +481,7 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 	}
 
 	start := bytes.IndexByte(file, 251)
-	end := bytes.IndexByte(file[start:], 255)
+	end := bytes.IndexByte(file[start:], 255) + start
 
 	fmt.Println(string(file[start:end]))
 
