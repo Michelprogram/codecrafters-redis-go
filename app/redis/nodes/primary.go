@@ -11,7 +11,7 @@ type Primary struct {
 	*Node
 }
 
-func NewPrimary(port uint, role string) *Primary {
+func NewPrimary(port uint, role, dir, dbfilename string) *Primary {
 
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 
@@ -19,7 +19,7 @@ func NewPrimary(port uint, role string) *Primary {
 		Node: &Node{
 			Port:         port,
 			Address:      address,
-			Information:  newInformation(role),
+			Information:  newInformation(role, dir, dbfilename),
 			Database:     database.NewDatabase(),
 			Replications: make([]net.Conn, 0, 10),
 			Parser:       commands.NewParser(),

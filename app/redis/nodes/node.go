@@ -24,13 +24,13 @@ type Node struct {
 	commands.Parser
 }
 
-func NewNode(port uint, role string) IServer {
+func NewNode(port uint, role, dir, dbfilename string) IServer {
 
 	if role == "" {
-		return NewPrimary(port, role)
+		return NewPrimary(port, role, dir, dbfilename)
 	}
 
-	return NewSecondary(port, role)
+	return NewSecondary(port, role, dir, dbfilename)
 
 }
 
@@ -137,4 +137,16 @@ func (r *Node) GetMasterInformation() string {
 
 func (r *Node) GetOffset() int {
 	return r.Offset
+}
+
+func (r *Node) GetConfiguration(key string) (string, error) {
+
+	val, ok := r.Config[key]
+
+	if ok {
+		return val, nil
+	}
+
+	return "", errors.New(key + " doesn't exist in config")
+
 }

@@ -17,7 +17,7 @@ type Secondary struct {
 	Master net.Conn
 }
 
-func NewSecondary(port uint, role string) *Secondary {
+func NewSecondary(port uint, role, dir, dbfilename string) *Secondary {
 
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 
@@ -25,7 +25,7 @@ func NewSecondary(port uint, role string) *Secondary {
 		Node: &Node{
 			Port:        port,
 			Address:     address,
-			Information: newInformation(role),
+			Information: newInformation(role, dir, dbfilename),
 			Database:    database.NewDatabase(),
 			Parser:      commands.NewParser(),
 			IsPrimary:   false,
@@ -146,7 +146,7 @@ func (m *Secondary) handshake() error {
 	for {
 		buffer := make([]byte, 1024)
 
-		size, err := m.Master.Read(buffer)
+		_, err := m.Master.Read(buffer)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -154,7 +154,7 @@ func (m *Secondary) handshake() error {
 			return err
 		}
 
-		log.Printf("Received redis101 : %s  %d\n", string(buffer[:size]), size)
+		//log.Printf("Received redis101 : %s  %d\n", string(buffer[:size]), size)
 
 		break
 	}

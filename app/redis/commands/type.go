@@ -15,6 +15,7 @@ type Node interface {
 	GetMasterInformation() string
 	GetOffset() int
 	IsMaster() bool
+	GetConfiguration(key string) (string, error)
 }
 
 type ICommand interface {

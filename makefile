@@ -67,3 +67,8 @@ send-xread-block:
 
 send-xadd-block:
 	redis-cli -p $(port) XADD some_key 1526985054079-0 temperature 37
+
+## RDB
+
+send-get-config:
+	redis-cli -p $(port) config get $(key)

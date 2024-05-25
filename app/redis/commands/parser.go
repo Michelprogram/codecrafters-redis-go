@@ -31,6 +31,7 @@ func NewParser() Parser {
 			"xadd":     Xadd{},
 			"xrange":   Xrange{},
 			"xread":    XRead{},
+			"config":   Config{},
 		},
 	}
 }

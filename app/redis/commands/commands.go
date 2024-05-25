@@ -420,3 +420,30 @@ func (_ XRead) Receive(conn net.Conn, args [][]byte, server Node) error {
 func (_ XRead) IsWritable() bool {
 	return false
 }
+
+type Config struct {
+}
+
+func (_ Config) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	var resp BuilderRESP
+
+	key := args[2]
+
+	val, err := server.GetConfiguration(string(key))
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+		return err
+	}
+
+	resp.GetConfig(key, []byte(val))
+
+	_, err = fmt.Fprintf(conn, resp.String())
+
+	return err
+}
+
+func (_ Config) IsWritable() bool {
+	return false
+}

@@ -17,6 +17,7 @@ type Information struct {
 	MasterPort              int
 	MasterReplicationId     string
 	MasterReplicationOffset int
+	Config                  map[string]string
 }
 
 func init() {
@@ -24,33 +25,41 @@ func init() {
 	rand.New(src)
 }
 
-func newInformation(role string) Information {
+func newInformation(role, dir, dbfilename string) Information {
 
-	if role == "" {
-		return Information{
-			ID:                      randomID(),
-			Role:                    "master",
-			IsMaster:                true,
-			MasterAddress:           "",
-			MasterPort:              0,
-			MasterReplicationId:     "",
-			MasterReplicationOffset: 0,
-		}
-	}
-
-	address := strings.Split(role, " ")
-
-	port, _ := strconv.Atoi(address[1])
-
-	return Information{
+	information := Information{
 		ID:                      randomID(),
-		Role:                    "slave",
-		IsMaster:                false,
-		MasterAddress:           strings.Replace(role, " ", ":", 1),
-		MasterPort:              port,
 		MasterReplicationId:     "",
 		MasterReplicationOffset: 0,
+		Config: map[string]string{
+			"dir":        dir,
+			"dbfilename": dbfilename,
+		},
 	}
+
+	if role == "" {
+
+		information.Role = "master"
+		information.IsMaster = true
+		information.MasterAddress = ""
+		information.MasterPort = 0
+		information.MasterReplicationId = ""
+		information.MasterReplicationOffset = 0
+
+	} else {
+		address := strings.Split(role, " ")
+
+		port, _ := strconv.Atoi(address[1])
+
+		information.Role = "slave"
+		information.IsMaster = false
+
+		information.MasterAddress = strings.Replace(role, " ", ":", 1)
+		information.MasterPort = port
+
+	}
+
+	return information
 }
 
 func (i Information) String() string {

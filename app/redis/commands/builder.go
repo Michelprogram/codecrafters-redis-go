@@ -262,3 +262,15 @@ func (b *BuilderRESP) XReadMultiple(keys [][]byte, streams []*database.Stream) *
 
 	return b
 }
+
+func (b *BuilderRESP) GetConfig(key, value []byte) *BuilderRESP {
+
+	b.WriteString("*2")
+	b.Write(CRLF)
+
+	b.Write(NewBulkString(key).Bytes())
+	b.Write(NewBulkString(value).Bytes())
+
+	return b
+
+}
