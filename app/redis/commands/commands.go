@@ -77,6 +77,8 @@ func (s Set) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	if server.IsMaster() {
 		_, err = fmt.Fprintf(conn, builder.Ok().String())
+	} else {
+		log.Println("Doesnt send set back as secondary")
 	}
 
 	return err
