@@ -145,6 +145,13 @@ func (m *Secondary) handshake() error {
 
 	response, err = utils.Send(m.Master, builder.Psync())
 
+	received := make([]byte, 1024)
+	size, err := conn.Read(received)
+
+	log.Println(string(received[:size]))
+
+	//panic(err)
+
 	return err
 
 }
