@@ -7,6 +7,7 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/redis/database"
 	"log"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -445,5 +446,45 @@ func (_ Config) Receive(conn net.Conn, args [][]byte, server Node) error {
 }
 
 func (_ Config) IsWritable() bool {
+	return false
+}
+
+type Keys struct {
+}
+
+func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
+
+	var resp BuilderRESP
+
+	dir, err := server.GetConfiguration("dir")
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+		return err
+	}
+
+	dbfilename, err := server.GetConfiguration("dbfilename")
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+		return err
+	}
+
+	path := fmt.Sprintf("%s/%s", dir, dbfilename)
+
+	file, err := os.ReadFile(path)
+
+	if err != nil {
+		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
+		return err
+	}
+
+	fmt.Println("MAGIC", string(file[:5]))
+	fmt.Println("VERSION", string(file[5:9]))
+
+	return err
+}
+
+func (_ Keys) IsWritable() bool {
 	return false
 }
