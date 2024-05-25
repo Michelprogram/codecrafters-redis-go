@@ -81,7 +81,7 @@ func (m *Secondary) responseFromMaster() error {
 
 		cmd := m.ParseArgs(buffer[:size])
 
-		//log.Println("Command from master", cmd.Name)
+		log.Println("Command from master", cmd.Name)
 
 		if cmd != nil {
 
@@ -152,9 +152,9 @@ func (m *Secondary) handshake() error {
 			return err
 		}
 
-		log.Printf("Received1 : %s\n", string(buffer[:size]))
+		log.Printf("Received redis101 : %s\n", string(buffer[:size]))
 
-		panic("oui")
+		break
 	}
 
 	return err
