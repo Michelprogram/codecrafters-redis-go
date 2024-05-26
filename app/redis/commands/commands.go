@@ -500,6 +500,8 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	file, err := os.ReadFile(path)
 
+	fmt.Println(file)
+
 	if err != nil {
 		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
 		return err
