@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/codecrafters-io/redis-starter-go/app/redis/database"
+	"github.com/codecrafters-io/redis-starter-go/app/redis/utils"
 	"log"
 	"net"
 	"os"
@@ -498,25 +499,14 @@ func (_ Keys) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 	path := fmt.Sprintf("%s/%s", dir, dbfilename)
 
-	file, err := os.ReadFile(path)
-
-	fmt.Println(file)
+	res, err := utils.ParseFile(path)
 
 	if err != nil {
 		_, err = fmt.Fprintf(conn, resp.EncodeAsSimpleString(err.Error(), ERROR).String())
 		return err
 	}
 
-	start := bytes.IndexByte(file, 251)
-	end := bytes.IndexByte(file[start:], 255) + start
-
-	key := file[start+1 : end]
-
-	size := int(key[3]) + 4
-
-	b := resp.EncodeAsArray(string(key[4:size]))
-
-	_, err = fmt.Fprintf(conn, b.String())
+	_, err = fmt.Fprintf(conn, resp.RdbKeys(res).String())
 
 	return err
 }
