@@ -32,8 +32,6 @@ func ParseFile(path string) (map[string]string, error) {
 		return nil, err
 	}
 
-	fmt.Println(file)
-
 	res := make(map[string]string)
 
 	cursor := bytes.IndexByte(file, 251)
