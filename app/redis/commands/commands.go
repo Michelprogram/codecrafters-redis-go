@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -105,11 +106,11 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		res, err := utils.ParseFile(path)
 
-		fmt.Printf("%s\n", res[key])
+		test := fmt.Sprintf("$%d\r\n%s\r\n", len(res[key]), res[key[:]])
 
-		test := fmt.Sprintf("$%d\r\n%s\r\n", len(res[key]), res[key])
+		data := bytes.Replace([]byte(test), []byte("\x06"), []byte(""), -1)
 
-		_, err = fmt.Fprintf(conn, test)
+		_, err = fmt.Fprintf(conn, NewBulkString(data).String())
 
 		return err
 
