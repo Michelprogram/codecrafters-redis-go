@@ -105,7 +105,7 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		res, err := utils.ParseFile(path)
 
-		_, err = fmt.Fprintf(conn, NewBulkString(res[key]).String())
+		_, err = fmt.Fprintf(conn, NewBulkString(res[key[1:]]).String())
 
 		return err
 
