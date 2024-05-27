@@ -105,7 +105,11 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		res, err := utils.ParseFile(path)
 
-		_, err = fmt.Fprintf(conn, fmt.Sprintf("$%d\r\n%s\r\n", len(res[key]), res[key]))
+		fmt.Printf("%s\n", res[key])
+
+		test := fmt.Sprintf("$%d\r\n%s\r\n", len(res[key]), res[key])
+
+		_, err = fmt.Fprintf(conn, test)
 
 		return err
 
