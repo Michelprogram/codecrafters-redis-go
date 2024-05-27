@@ -104,10 +104,8 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 		path := fmt.Sprintf("%s/%s", val, dbfilename)
 
 		res, err := utils.ParseFile(path)
-
-		fmt.Printf("%s\n", res[key[1:]])
-
-		_, err = fmt.Fprintf(conn, builder.EncodeAsSimpleString(res[key], BULK_STRING).String())
+		
+		_, err = fmt.Fprintf(conn, NewBulkString(res[key]).String())
 
 		return err
 
