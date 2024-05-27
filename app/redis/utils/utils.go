@@ -55,7 +55,7 @@ func ParseFile(path string) (map[string]string, error) {
 
 		valueSize = int(key[keySize]) + 1
 
-		res[string(key[1:keySize])] = string(key[keySize : valueSize+keySize])
+		res[string(key[2:keySize])] = string(key[keySize+1 : valueSize+keySize])
 
 		cursor += valueSize + keySize
 	}
