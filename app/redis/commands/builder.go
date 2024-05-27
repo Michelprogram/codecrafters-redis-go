@@ -288,3 +288,17 @@ func (b *BuilderRESP) RdbKeys(data map[string]string) *BuilderRESP {
 
 	return b
 }
+
+func (b *BuilderRESP) RdbValues(data map[string]string) *BuilderRESP {
+
+	first := fmt.Sprintf("*%d", len(data))
+
+	b.WriteString(first)
+	b.Write(CRLF)
+
+	for _, v := range data {
+		b.Write(NewBulkString(v).Bytes())
+	}
+
+	return b
+}

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/redis/utils"
 	"log"
 	"net"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -105,20 +103,9 @@ func (_ Get) Receive(conn net.Conn, args [][]byte, server Node) error {
 
 		path := fmt.Sprintf("%s/%s", val, dbfilename)
 
-		file, err := os.ReadFile(path)
+		res, err := utils.ParseFile(path)
 
-		start := bytes.IndexByte(file, 251)
-		end := bytes.IndexByte(file[start:], 255) + start
-
-		line := file[start+1 : end]
-
-		size := int(line[3]) + 4
-
-		_, _ = fmt.Fprintf(os.Stdout, string(line[size:]))
-
-		b := NewBulkString(string(line[size+1:]))
-
-		_, err = fmt.Fprintf(conn, b.String())
+		_, err = fmt.Fprintf(conn, NewBulkString(res[key]).String())
 
 		return err
 
